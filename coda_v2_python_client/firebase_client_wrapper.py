@@ -72,10 +72,6 @@ def ensure_user_ids_consistent(dataset_id):
             f"Segment {segment_id} has different users to the first segment {dataset_id}"
 
 
-def get_segment_user_ids(segment_id):
-    return get_segment(segment_id).get("users")
-
-
 def get_user_ids(dataset_id):
     ensure_user_ids_consistent(dataset_id)
 
