@@ -1,4 +1,5 @@
 import firebase_admin
+from core_data_modules.logging import Logger
 from firebase_admin import credentials
 from firebase_admin import firestore
 
