@@ -55,3 +55,15 @@ class CodaV2Client:
                     dataset_ids.remove(id_for_segment(dataset_id, segment_index))
 
         return dataset_ids
+
+    def get_segment_ids():
+        """
+        Gets ids of all datasets including segmented dataset ids.
+
+        :return: Ids of all datasets including segmented dataset ids.
+        :rtype: list of str
+        """
+        ids = []
+        for segment in self._client.collection(u'datasets').get():
+            ids.append(segment.id)
+        return ids
