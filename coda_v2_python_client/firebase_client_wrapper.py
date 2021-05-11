@@ -67,3 +67,18 @@ class CodaV2Client:
         for segment in self._client.collection(u'datasets').get():
             ids.append(segment.id)
         return ids
+
+    def id_for_segment(dataset_id, segment_index=None):
+        """
+        Generates id for segmented dataset ids by concatinating dataset id & segment index.
+
+        :param dataset_id: Id for a datasets including segemented datasets
+        :type dataset_id: str
+        :param segment_index: Index in the range of segment count starting from two, defaults to None
+        :type segment_index: int, optional
+        :return: Output of concatinating dataset id & segment index
+        :rtype: str
+        """
+        if segment_index is None or segment_index == 1:
+            return dataset_id
+        return dataset_id + f'_{segment_index}'
