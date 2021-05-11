@@ -22,7 +22,7 @@ class FirebaseClientWrapper:
             app_name (str): Name to call the Firestore app instance we'll use to connect.
 
         Returns:
-            FirebaseClientWrapper: Firebase client
+            FirebaseClientWrapper: Firestore client wrapper instance
         """
         try:
             firebase_admin.get_app()
