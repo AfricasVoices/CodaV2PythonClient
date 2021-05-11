@@ -74,7 +74,7 @@ class CodaV2Client:
 
         :param dataset_id: Id for a datasets including segemented datasets
         :type dataset_id: str
-        :param segment_index: Index in the range of segment count starting from two, defaults to None
+        :param segment_index: Index in the range of segment count starting from index two, defaults to None
         :type segment_index: int, optional
         :return: Output of concatinating dataset id & segment index
         :rtype: str
