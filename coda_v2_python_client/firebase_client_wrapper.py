@@ -14,7 +14,7 @@ class CodaV2Client:
         self._client = client
 
     @classmethod
-    def init_client(cls, crypto_token_path, app_name):
+    def init_client(cls, crypto_token_path, app_name="CodaV2Client"):
         """Inits Firestore client
 
         Args:
