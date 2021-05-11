@@ -4,7 +4,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 
-class FirebaseClientWrapper:
+class CodaV2Client:
     def __init__(self, client):
         """Inits FirebaseClientWrapper
 
