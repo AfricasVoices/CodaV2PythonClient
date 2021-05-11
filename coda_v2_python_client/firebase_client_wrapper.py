@@ -6,23 +6,25 @@ from firebase_admin import firestore
 
 class CodaV2Client:
     def __init__(self, client):
-        """Inits FirebaseClientWrapper
+        """
+        Inits Coda V2 client
 
-        Args:
-            Firestore client (google.cloud.firestore.Firestore): Client for interacting with Google Cloud Firestore.
+        :param client: Client for interacting with Google Cloud Firestore.
+        :type client: google.cloud.firestore.Firestore
         """
         self._client = client
 
     @classmethod
     def init_client(cls, crypto_token_path, app_name="CodaV2Client"):
-        """Inits Firestore client
+        """
+        Inits Coda V2 client
 
-        Args:
-            crypto_token_path (str): Path to the Firestore credentials file
-            app_name (str): Name to call the Firestore app instance we'll use to connect.
-
-        Returns:
-            FirebaseClientWrapper: Firestore client wrapper instance
+        :param crypto_token_path: Path to the Firestore credentials file
+        :type crypto_token_path: str
+        :param app_name: Name to call the Firestore app instance we'll use to connect, defaults to "CodaV2Client"
+        :type app_name: str, optional
+        :return: Coda V2 client instance
+        :rtype: CodaV2Client
         """
         try:
             firebase_admin.get_app()
