@@ -82,3 +82,15 @@ class CodaV2Client:
         if segment_index is None or segment_index == 1:
             return dataset_id
         return dataset_id + f'_{segment_index}'
+
+    def get_segmented_dataset_ids():
+        """
+        Gets segmented dataset ids 
+
+        :return: Ids of all datasets that are segmented
+        :rtype: list of str
+        """
+        segmented_dataset_ids = []
+        for doc in self._client.collection("segment_counts").get():
+            segmented_dataset_ids.append(doc.id)
+        return segmented_dataset_ids
