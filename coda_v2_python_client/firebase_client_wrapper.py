@@ -3,6 +3,8 @@ from core_data_modules.logging import Logger
 from firebase_admin import credentials
 from firebase_admin import firestore
 
+log = Logger(__name__)
+
 
 class CodaV2Client:
     def __init__(self, client):
