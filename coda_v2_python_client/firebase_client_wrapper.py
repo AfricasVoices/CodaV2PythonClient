@@ -62,7 +62,7 @@ class CodaV2Client:
         """
         Gets ids of all segments (including for datasets that contain only one segment)
 
-        :return: Ids of all datasets including segmented dataset ids.
+        :return: Ids of all segments.
         :rtype: list of str
         """
         ids = []
