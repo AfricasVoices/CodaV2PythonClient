@@ -74,11 +74,11 @@ class CodaV2Client:
         """
         Gets the id for segment `n` of a dataset.
 
-        :param dataset_id: Id for a datasets including segemented datasets
+        :param dataset_id: Id of a dataset
         :type dataset_id: str
-        :param segment_index: Index in the range of segment count starting from index two, defaults to None
+        :param segment_index: Segment `n` of a dataset, defaults to None
         :type segment_index: int, optional
-        :return: Output of concatinating dataset id & segment index
+        :return: Id for segment `n` of a dataset.
         :rtype: str
         """
         if segment_index is None or segment_index == 1:
