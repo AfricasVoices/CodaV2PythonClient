@@ -83,7 +83,7 @@ class CodaV2Client:
         """
         if segment_index is None or segment_index == 1:
             return dataset_id
-        return dataset_id + f'_{segment_index}'
+        return f"{dataset_id}_{segment_index}"
 
     def get_segmented_dataset_ids():
         """
