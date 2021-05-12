@@ -60,7 +60,7 @@ class CodaV2Client:
 
     def get_segment_ids():
         """
-        Gets ids of all datasets including segmented dataset ids.
+        Gets ids of all segments (including for datasets that contain only one segment)
 
         :return: Ids of all datasets including segmented dataset ids.
         :rtype: list of str
