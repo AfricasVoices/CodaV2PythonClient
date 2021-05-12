@@ -72,7 +72,7 @@ class CodaV2Client:
 
     def id_for_segment(dataset_id, segment_index=None):
         """
-        Generates id for segmented dataset ids by concatinating dataset id & segment index.
+        Gets the id for segment `n` of a dataset.
 
         :param dataset_id: Id for a datasets including segemented datasets
         :type dataset_id: str
