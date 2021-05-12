@@ -66,7 +66,7 @@ class CodaV2Client:
         :rtype: list of str
         """
         ids = []
-        for segment in self._client.collection(u'datasets').get():
+        for segment in self._client.collection("datasets").get():
             ids.append(segment.id)
         return ids
 
