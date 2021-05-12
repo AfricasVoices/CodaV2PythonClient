@@ -43,7 +43,7 @@ class CodaV2Client:
         """
         Gets all the available dataset ids in Coda (For each segmented dataset, returns only the primary dataset id).
 
-        :return: Unique ids of datasets having included only one id for segmented dataset ids.
+        :return: Ids of all the available datasets.
         :rtype: set of str
         """
         segment_ids = get_segment_ids()
