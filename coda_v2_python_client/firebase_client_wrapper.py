@@ -99,7 +99,15 @@ class CodaV2Client:
         return segmented_dataset_ids
 
     def get_segment_count(self, dataset_id):
-        segment_count_doc = self._client.document(f'segment_counts/{dataset_id}').get().to_dict()
+        """
+        Gets number of segments for a given dataset.
+
+        :param dataset_id: Id of a dataset
+        :type dataset_id: str
+        :return: Number of segments for a given dataset
+        :rtype: int
+        """
+        segment_count_doc = self._client.document(f"segment_counts/{dataset_id}").get().to_dict()
         if segment_count_doc is None:
             return None
         return segment_count_doc["segment_count"]
