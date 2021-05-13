@@ -97,3 +97,9 @@ class CodaV2Client:
         for doc in self._client.collection("segment_counts").get():
             segmented_dataset_ids.append(doc.id)
         return segmented_dataset_ids
+
+    def get_segment_count(self, dataset_id):
+        segment_count_doc = self._client.document(f'segment_counts/{dataset_id}').get().to_dict()
+        if segment_count_doc is None:
+            return None
+        return segment_count_doc["segment_count"]
