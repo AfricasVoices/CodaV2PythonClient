@@ -70,6 +70,7 @@ class CodaV2Client:
             ids.append(segment.id)
         return ids
 
+    @staticmethod
     def id_for_segment(dataset_id, segment_index=None):
         """
         Gets the id for segment `n` of a dataset.
