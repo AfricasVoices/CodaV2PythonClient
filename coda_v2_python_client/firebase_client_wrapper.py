@@ -39,26 +39,26 @@ class CodaV2Client:
         app = firebase_admin.initialize_app(cred, name=app_name)
         return cls(firestore.client(app))
 
-    def get_dataset_ids():
+    def get_dataset_ids(self):
         """
         Gets all the available dataset ids in Coda (For each segmented dataset, returns only the primary dataset id).
 
         :return: Ids of all the available datasets.
         :rtype: set of str
         """
-        segment_ids = get_segment_ids()
+        segment_ids = self.get_segment_ids()
         assert len(segment_ids) == len(set(segment_ids)), "Segment ids not unique"
 
         dataset_ids = set(segment_ids)
-        for dataset_id in get_segmented_dataset_ids():
-            segment_count = get_segment_count(dataset_id)
+        for dataset_id in self.get_segmented_dataset_ids():
+            segment_count = self.get_segment_count(dataset_id)
             if segment_count is not None and segment_count > 1:
                 for segment_index in range(2, segment_count + 1):
-                    dataset_ids.remove(id_for_segment(dataset_id, segment_index))
+                    dataset_ids.remove(self.id_for_segment(dataset_id, segment_index))
 
         return dataset_ids
 
-    def get_segment_ids():
+    def get_segment_ids(self):
         """
         Gets ids of all segments (including for datasets that contain only one segment)
 
@@ -85,7 +85,7 @@ class CodaV2Client:
             return dataset_id
         return f"{dataset_id}_{segment_index}"
 
-    def get_segmented_dataset_ids():
+    def get_segmented_dataset_ids(self):
         """
         Gets segmented dataset ids 
 
