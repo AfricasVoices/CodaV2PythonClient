@@ -111,3 +111,15 @@ class CodaV2Client:
         if segment_count_doc is None:
             return None
         return segment_count_doc["segment_count"]
+
+    def get_message_ref(self, segment_id, message_id):
+        """ Gets database reference to a message.
+
+        :param segment_id: Id of a segment
+        :type segment_id: str
+        :param message_id: Id of a message
+        :type message_id: str
+        :return: A database Reference representing the specified node
+        :rtype: firebase_admin.db.Reference
+        """
+        return self._client.document(f"datasets/{segment_id}/messages/{message_id}")
