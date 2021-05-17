@@ -131,7 +131,7 @@ class CodaV2Client:
         :return: A message from a dataset.
         :rtype: core_data_modules.data_models.message.Message | None
         """
-        raw_message = self.get_message_ref(dataset_id, message_id).get()
+        raw_message = self.get_message_ref(dataset_id, message_id).get().to_dict()
         if raw_message is None:
             return None
         message = Message.from_firebase_map(raw_message)
