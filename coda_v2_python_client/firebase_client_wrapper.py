@@ -125,7 +125,7 @@ class CodaV2Client:
         """
         return self._client.document(f"datasets/{segment_id}/messages/{message_id}")
 
-    def get_message(dataset_id, message_id):
+    def get_message(self, dataset_id, message_id):
         """Gets a message from a dataset by id.
 
         :return: A message from a dataset.
