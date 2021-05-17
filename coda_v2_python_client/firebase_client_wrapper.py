@@ -119,5 +119,9 @@ class CodaV2Client:
             return None
         return Message.from_firebase_map(doc.to_dict())
 
+    def get_messages(self, dataset_id):
+        q = self._client.collection(f"datasets/{dataset_id}/messages").get()
+        return [Message.from_firebase_map(d.to_dict()) for d in q.get()]
+
     def add_message(self, dataset_id, message):
         self._client.document(f"datasets/{dataset_id}/messages/{message.message_id}").set(message.to_firebase_map())
