@@ -105,7 +105,7 @@ class CodaV2Client:
         :param dataset_id: Id of a dataset
         :type dataset_id: str
         :return: Number of segments for a given dataset
-        :rtype: int
+        :rtype: int | None
         """
         segment_count_doc = self._client.document(f"segment_counts/{dataset_id}").get().to_dict()
         if segment_count_doc is None:
