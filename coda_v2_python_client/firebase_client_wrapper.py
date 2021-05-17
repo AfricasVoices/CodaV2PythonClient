@@ -124,3 +124,15 @@ class CodaV2Client:
         :rtype: firebase_admin.db.Reference
         """
         return self._client.document(f"datasets/{segment_id}/messages/{message_id}")
+
+    def get_message(dataset_id, message_id):
+        """Gets a message from a dataset by id.
+
+        :return: A message from a dataset.
+        :rtype: core_data_modules.data_models.Message | None
+        """
+        raw_message = self.get_message_ref(dataset_id, message_id).get()
+        if raw_message is None:
+            return None
+        message = Message.from_firebase_map(raw_message)
+        return message
