@@ -129,7 +129,7 @@ class CodaV2Client:
         """Gets a message from a dataset by id.
 
         :return: A message from a dataset.
-        :rtype: core_data_modules.data_models.Message | None
+        :rtype: core_data_modules.data_models.message.Message | None
         """
         raw_message = self.get_message_ref(dataset_id, message_id).get()
         if raw_message is None:
