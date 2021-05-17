@@ -1,4 +1,5 @@
 import firebase_admin
+from core_data_modules.data_models import Message
 from core_data_modules.logging import Logger
 from firebase_admin import credentials
 from firebase_admin import firestore
@@ -111,3 +112,12 @@ class CodaV2Client:
         if segment_count_doc is None:
             return None
         return segment_count_doc["segment_count"]
+
+    def get_message(self, dataset_id, message_id):
+        doc = self._client.document(f"datasets/{dataset_id}/messages/{message_id}")
+        if not doc.exists:
+            return None
+        return Message.from_firebase_map(doc.to_dict())
+
+    def add_message(self, dataset_id, message):
+        self._client.document(f"datasets/{dataset_id}/messages/{message.message_id}").set(message.to_firebase_map())
