@@ -135,5 +135,5 @@ class CodaV2Client:
         else:
             seq_no = 0
 
-        to_write = seq_no + 1
+        to_write["SequenceNumber"] = seq_no + 1
         self._client.document(f"datasets/{dataset_id}/messages/{message.message_id}").set(to_write)
