@@ -120,8 +120,8 @@ class CodaV2Client:
         :type segment_id: str
         :param message_id: Id of a message
         :type message_id: str
-        :return: A database Reference representing the specified node
-        :rtype: firebase_admin.db.Reference
+        :return: A reference to a document in a Firestore database
+        :rtype: google.cloud.firestore_v1.document.DocumentReference
         """
         return self._client.document(f"datasets/{segment_id}/messages/{message_id}")
 
