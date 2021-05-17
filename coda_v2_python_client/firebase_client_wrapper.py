@@ -114,7 +114,7 @@ class CodaV2Client:
         return segment_count_doc["segment_count"]
 
     def get_message(self, dataset_id, message_id):
-        doc = self._client.document(f"datasets/{dataset_id}/messages/{message_id}")
+        doc = self._client.document(f"datasets/{dataset_id}/messages/{message_id}").get()
         if not doc.exists:
             return None
         return Message.from_firebase_map(doc.to_dict())
