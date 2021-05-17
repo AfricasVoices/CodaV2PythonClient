@@ -124,4 +124,16 @@ class CodaV2Client:
         return [Message.from_firebase_map(d.to_dict()) for d in q.get()]
 
     def add_message(self, dataset_id, message):
-        self._client.document(f"datasets/{dataset_id}/messages/{message.message_id}").set(message.to_firebase_map())
+        to_write = message.to_firebase_map()
+
+        highest_doc = self._client.collection(f"datasets/{dataset_id}/messages")\
+            .order_by("SequenceNumber", direction=firestore.Query.DESCENDING)\
+            .limit(1)\
+            .get()
+        if len(highest_doc) > 0:
+            seq_no = highest_doc[0].to_dict()["SequenceNumber"]
+        else:
+            seq_no = 0
+
+        to_write = seq_no + 1
+        self._client.document(f"datasets/{dataset_id}/messages/{message.message_id}").set(to_write)
