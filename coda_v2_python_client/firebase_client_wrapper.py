@@ -114,7 +114,7 @@ class CodaV2Client:
         return segment_count_doc["segment_count"]
 
     def get_message_ref(self, segment_id, message_id):
-        """ Gets database reference to a message.
+        """ Gets Firestore database reference to a message.
 
         :param segment_id: Id of a segment
         :type segment_id: str
