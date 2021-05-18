@@ -126,6 +126,22 @@ class CodaV2Client:
         """
         return self._client.document(f"datasets/{segment_id}/messages/{message_id}")
 
+    def get_segment_message(self, segment_id, message_id):
+        """
+        Gets a message from a segment by id. If the message is not found, returns None.
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :param message_id: Id of a message.
+        :type message_id: str
+        :return: A message from a segment.
+        :rtype: core_data_modules.data_models.message.Message | None
+        """
+        raw_message = self.get_message_ref(segment_id, message_id).get().to_dict()
+        if raw_message is None:
+            return None
+        return Message.from_firebase_map(raw_message)
+
     def get_message(self, dataset_id, message_id):
         """Gets a message from a dataset by id.
 
