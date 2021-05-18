@@ -143,8 +143,13 @@ class CodaV2Client:
         return Message.from_firebase_map(raw_message)
 
     def get_message(self, dataset_id, message_id):
-        """Gets a message from a dataset by id.
+        """
+        Gets a message from a dataset by id. If the message is not found, returns None.
 
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        :param message_id: Id of a message.
+        :type message_id: str
         :return: A message from a dataset.
         :rtype: core_data_modules.data_models.message.Message | None
         """
