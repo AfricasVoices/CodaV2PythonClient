@@ -162,6 +162,7 @@ class CodaV2Client:
                 segment_id = self.id_for_segment(dataset_id, segment_index)
                 message = self.get_segment_message(segment_id, message_id)
                 if message is not None:
+                    log.debug(f"Message found in segment {segment_id}")
                     break
                 log.debug(f"Message not found in segment {segment_id}")
             else:
