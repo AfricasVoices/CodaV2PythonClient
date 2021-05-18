@@ -1,5 +1,6 @@
 import firebase_admin
 from core_data_modules.logging import Logger
+from core_data_modules.data_models import Message
 from firebase_admin import credentials
 from firebase_admin import firestore
 
@@ -111,3 +112,56 @@ class CodaV2Client:
         if segment_count_doc is None:
             return None
         return segment_count_doc["segment_count"]
+
+    def get_message_ref(self, segment_id, message_id):
+        """ 
+        Gets Firestore database reference to a message.
+
+        :param segment_id: Id of a segment
+        :type segment_id: str
+        :param message_id: Id of a message
+        :type message_id: str
+        :return: A reference to a document in a Firestore database
+        :rtype: google.cloud.firestore_v1.document.DocumentReference
+        """
+        return self._client.document(f"datasets/{segment_id}/messages/{message_id}")
+
+    def get_segment_message(self, segment_id, message_id):
+        """
+        Gets a message from a segment by id. If the message is not found, returns None.
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :param message_id: Id of a message.
+        :type message_id: str
+        :return: A message from a segment.
+        :rtype: core_data_modules.data_models.message.Message | None
+        """
+        raw_message = self.get_message_ref(segment_id, message_id).get().to_dict()
+        if raw_message is None:
+            return None
+        return Message.from_firebase_map(raw_message)
+
+    def get_message(self, dataset_id, message_id):
+        """
+        Gets a message from a dataset by id. If the message is not found, returns None.
+
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        :param message_id: Id of a message.
+        :type message_id: str
+        :return: A message from a dataset.
+        :rtype: core_data_modules.data_models.message.Message | None
+        """
+        segment_count = self.get_segment_count(dataset_id)
+        if segment_count is None or segment_count == 1:
+            return self.get_segment_message(dataset_id, message_id)
+       
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            message = self.get_segment_message(segment_id, message_id)
+            if message is not None:
+                log.debug(f"Message found in segment {segment_id}")
+                return message
+
+        return None
