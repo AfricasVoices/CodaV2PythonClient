@@ -167,6 +167,5 @@ class CodaV2Client:
                 log.debug(f"Message not found in segment {segment_id}")
             else:
                 log.debug(f"Message not found in Dataset {dataset_id}")
-                return None
 
         return message
