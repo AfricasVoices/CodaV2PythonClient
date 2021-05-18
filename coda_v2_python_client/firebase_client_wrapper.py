@@ -148,8 +148,18 @@ class CodaV2Client:
         :return: A message from a dataset.
         :rtype: core_data_modules.data_models.message.Message | None
         """
-        raw_message = self.get_message_ref(dataset_id, message_id).get().to_dict()
-        if raw_message is None:
-            return None
-        message = Message.from_firebase_map(raw_message)
+        segment_count = self.get_segment_count(dataset_id)
+        if segment_count is None or segment_count == 1:
+            message = self.get_segment_message(dataset_id, message_id)
+        else:
+            for segment_index in range(1, segment_count + 1):
+                segment_id = self.id_for_segment(dataset_id, segment_index)
+                message = self.get_segment_message(segment_id, message_id)
+                if message is not None:
+                    break
+                log.debug(f"There is no message with ID {message_id} in segment {segment_id}")
+            else:
+                log.debug(f"There is no message with ID {message_id} in Dataset with ID {dataset_id}")
+                return None
+
         return message
