@@ -264,9 +264,9 @@ class CodaV2Client:
                 messages.extend(segment_messages)
 
             # Check that there are no duplicate message ids.
-            message_ids = set()
+            seen_message_ids = set()
             for message in messages:
-                assert message.message_id not in message_ids, "Duplicate message found"
-                message_ids.add(message.message_id)
+                assert message.message_id not in seen_message_ids, "Duplicate message found"
+                seen_message_ids.add(message.message_id)
 
             return messages
