@@ -142,6 +142,22 @@ class CodaV2Client:
             return None
         return Message.from_firebase_map(raw_message)
 
+    def get_segment_messages(self, segment_id, last_updated_after=None, last_updated_before=None):
+        messages_ref = self._client.collection(f"datasets/{segment_id}/messages")
+        if last_updated_after is not None:
+            messages_ref = messages_ref.where("LastUpdated", ">", last_updated_after)
+        if last_updated_before is not None:
+            messages_ref = messages_ref.where("LastUpdated", "<=", last_updated_before)
+        raw_messages = [message.to_dict() for message in messages_ref.get()]
+
+        messages = []
+        for message in raw_messages:
+            if "LastUpdated" in message:
+                message["LastUpdated"] = message["LastUpdated"].isoformat(timespec="microseconds")
+            messages.append(message)
+
+        return [Message.from_firebase_map(message) for message in messages]
+
     def get_message(self, dataset_id, message_id):
         """
         Gets a message from a dataset by id. If the message is not found, returns None.
