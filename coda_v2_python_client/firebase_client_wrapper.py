@@ -143,6 +143,24 @@ class CodaV2Client:
         return Message.from_firebase_map(raw_message)
 
     def get_segment_messages(self, segment_id, last_updated_after=None, last_updated_before=None):
+        """
+        Downloads messages from the requested segment, optionally filtering by when the messages were last updated.
+
+        If filtering by when the messages where last updated, only message objects which contain a LastUpdated field
+        will be returned.
+
+        :param segment_id: Id of segment to download messages from.
+        :type segment_id: str
+        :param last_updated_after: If specified, filters the downloaded messages to only include messages with a LastUpdated
+                                   field and where the LastUpdated field is later than last_updated_after. Defaults to None.
+        :type last_updated_after: datetime, optional
+        :param last_updated_before: If specified, filters the downloaded messages to only include messages with a LastUpdated
+                                    field and where the LastUpdated field is earlier than, or the same time as,
+                                    last_updated_before. Defaults to None
+        :type last_updated_before: datetime, optional
+        :return: Messages in this segment, filtered by 'LastUpdated' timestamp if requested.
+        :rtype: list of core_data_modules.data_models.message.Message
+        """
         messages_ref = self._client.collection(f"datasets/{segment_id}/messages")
         if last_updated_after is not None:
             messages_ref = messages_ref.where("LastUpdated", ">", last_updated_after)
