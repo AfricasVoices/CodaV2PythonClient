@@ -255,7 +255,7 @@ class CodaV2Client:
                     segment_last_updated = dataset_first_updated
 
                 if segment_last_updated is not None:
-                    updated_segment_messages = self.get_segment_messages(segment_id, segment_last_updated, dataset_last_updated) # nopep8
+                    updated_segment_messages = self.get_segment_messages(segment_id, segment_last_updated, dataset_last_updated)  # nopep8
                     messages_by_segment[segment_id].extend(updated_segment_messages)
 
             # Combine all the messages downloaded from each segment.
