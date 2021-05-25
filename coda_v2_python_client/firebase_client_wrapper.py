@@ -274,5 +274,5 @@ class CodaV2Client:
 
             return messages
 
-    def get_code_schemes_ref(self, dataset_id):
-        return self._client.collection(f"datasets/{dataset_id}/code_schemes")
+    def get_code_schemes_ref(self, segment_id):
+        return self._client.collection(f"datasets/{segment_id}/code_schemes")
