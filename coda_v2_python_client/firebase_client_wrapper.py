@@ -276,3 +276,11 @@ class CodaV2Client:
 
     def get_code_schemes_ref(self, segment_id):
         return self._client.collection(f"datasets/{segment_id}/code_schemes")
+
+    def get_all_code_schemes(self, dataset_id):
+        self.ensure_code_schemes_consistent(dataset_id)
+
+        schemes = []
+        for scheme in self.get_code_schemes_ref(dataset_id).get():
+            schemes.append(CodeScheme.from_firebase_map(scheme.to_dict()))
+        return schemes
