@@ -275,10 +275,23 @@ class CodaV2Client:
             return messages
 
     def get_code_schemes_ref(self, segment_id):
+        """
+        Gets Firestore database reference to code schemes.
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :return: A reference to collection `code_schemes` in Firestore database
+        :rtype: google.cloud.firestore_v1.collection.CollectionReference
+        """
         return self._client.collection(f"datasets/{segment_id}/code_schemes")
 
     def ensure_code_schemes_consistent(self, dataset_id):
-        # Checks that the code schemes are the same in all segments
+        """
+        Checks that the code schemes are the same in all segments
+
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        """
         segment_count = self.get_segment_count(dataset_id)
         if segment_count is None or segment_count == 1:
             return
@@ -304,6 +317,14 @@ class CodaV2Client:
                 assert x == y, f"Segment {segment_id} has different schemes to the first segment {dataset_id}"
 
     def get_all_code_schemes(self, dataset_id):
+        """
+        Gets all code schemes for a given dataset
+
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        :return: Code schemes in this dataset
+        :rtype: core_data_modules.data_models.code_scheme.CodeScheme
+        """
         self.ensure_code_schemes_consistent(dataset_id)
 
         schemes = []
