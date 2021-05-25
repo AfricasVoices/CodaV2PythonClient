@@ -277,6 +277,32 @@ class CodaV2Client:
     def get_code_schemes_ref(self, segment_id):
         return self._client.collection(f"datasets/{segment_id}/code_schemes")
 
+    def ensure_code_schemes_consistent(self, dataset_id):
+        # Checks that the code schemes are the same in all segments
+        segment_count = self.get_segment_count(dataset_id)
+        if segment_count is None or segment_count == 1:
+            return
+
+        first_segment_schemes = []
+        for code_scheme in self.get_code_schemes_ref(dataset_id).get():
+            first_segment_schemes.append(CodeScheme.from_firebase_map(code_scheme.to_dict()))
+
+        for segment_index in range(2, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+
+            current_segment_schemes = []
+            for code_scheme in self.get_code_schemes_ref(segment_id).get():
+                current_segment_schemes.append(CodeScheme.from_firebase_map(code_scheme.to_dict()))
+
+            assert len(first_segment_schemes) == len(current_segment_schemes), \
+                f"Segment {segment_id} has a different number of schemes to the first segment {dataset_id}"
+
+            first_segment_schemes.sort(key=lambda s: s.scheme_id)
+            current_segment_schemes.sort(key=lambda s: s.scheme_id)
+
+            for x, y in zip(first_segment_schemes, current_segment_schemes):
+                assert x == y, f"Segment {segment_id} has different schemes to the first segment {dataset_id}"
+
     def get_all_code_schemes(self, dataset_id):
         self.ensure_code_schemes_consistent(dataset_id)
 
