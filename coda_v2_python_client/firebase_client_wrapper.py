@@ -332,7 +332,7 @@ class CodaV2Client:
             code_schemes.append(CodeScheme.from_firebase_map(doc.to_dict()))
         return code_schemes
 
-    def get_messages_metrics_ref(self, segment_id):
+    def get_segment_messages_metrics_ref(self, segment_id):
         """
         Gets Firestore database reference to messages metrics.
 
@@ -343,7 +343,7 @@ class CodaV2Client:
         """
         return self._client.document(f"datasets/{segment_id}/metrics/messages")
 
-    def get_segment_metrics(self, segment_id):
+    def get_segment_messages_metrics(self, segment_id):
         """
         Gets messages metrics for a given segment
 
@@ -354,7 +354,7 @@ class CodaV2Client:
         """
         return self.get_messages_metrics_ref(segment_id).get().to_dict()
 
-    def set_segment_metrics(self, segment_id, metrics_map):
+    def set_segment_messages_metrics(self, segment_id, metrics_map):
         """
         Sets messages metrics for a given segment
 
@@ -363,4 +363,4 @@ class CodaV2Client:
         :param metrics_map: Messages metrics.
         :type metrics_map: dict
         """
-        self.get_messages_metrics_ref(segment_id).set(metrics_map)
+        self.get_segment_messages_metrics_ref(segment_id).set(metrics_map)
