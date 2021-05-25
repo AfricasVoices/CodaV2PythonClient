@@ -331,3 +331,12 @@ class CodaV2Client:
         for code_scheme in self.get_code_schemes_ref(dataset_id).get():
             code_schemes.append(CodeScheme.from_firebase_map(code_scheme.to_dict()))
         return code_schemes
+
+    def get_messages_metrics_ref(self, segment_id):
+        return self._client.collection(f"datasets/{segment_id}/metrics/messages")
+
+    def get_segment_metrics(self, segment_id):
+        return self.get_messages_metrics_ref(segment_id).get().to_dict()
+
+    def set_segment_metrics(self, segment_id, metrics_map):
+        self.get_messages_metrics_ref(segment_id).set(metrics_map)
