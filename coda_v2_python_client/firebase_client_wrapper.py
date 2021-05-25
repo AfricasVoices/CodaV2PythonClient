@@ -270,3 +270,6 @@ class CodaV2Client:
                 seen_message_ids.add(message.message_id)
 
             return messages
+
+    def get_code_schemes_ref(self, dataset_id):
+        return self._client.collection(f"datasets/{dataset_id}/code_schemes")
