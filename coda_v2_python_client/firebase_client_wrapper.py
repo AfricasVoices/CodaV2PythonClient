@@ -333,7 +333,15 @@ class CodaV2Client:
         return code_schemes
 
     def get_messages_metrics_ref(self, segment_id):
-        return self._client.collection(f"datasets/{segment_id}/metrics/messages")
+        """
+        Gets Firestore database reference to messages metrics.
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :return: A reference to messages metrics document in Firestore database
+        :rtype: google.cloud.firestore_v1.document.DocumentReference
+        """
+        return self._client.document(f"datasets/{segment_id}/metrics/messages")
 
     def get_segment_metrics(self, segment_id):
         return self.get_messages_metrics_ref(segment_id).get().to_dict()
