@@ -1,3 +1,5 @@
+import json
+
 import firebase_admin
 from core_data_modules.logging import Logger
 from core_data_modules.data_models import Message
