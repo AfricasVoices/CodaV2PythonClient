@@ -355,4 +355,12 @@ class CodaV2Client:
         return self.get_messages_metrics_ref(segment_id).get().to_dict()
 
     def set_segment_metrics(self, segment_id, metrics_map):
+        """
+        Sets messages metrics for a given segment
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :param metrics_map: Messages metrics.
+        :type metrics_map: dict
+        """
         self.get_messages_metrics_ref(segment_id).set(metrics_map)
