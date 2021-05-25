@@ -1,10 +1,10 @@
 import json
 
 import firebase_admin
-from core_data_modules.logging import Logger
-from core_data_modules.data_models import Message
 from firebase_admin import credentials
 from firebase_admin import firestore
+from core_data_modules.logging import Logger
+from core_data_modules.data_models import Message
 
 log = Logger(__name__)
 
