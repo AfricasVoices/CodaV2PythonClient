@@ -327,7 +327,7 @@ class CodaV2Client:
         """
         self.ensure_code_schemes_consistent(dataset_id)
 
-        schemes = []
-        for scheme in self.get_code_schemes_ref(dataset_id).get():
-            schemes.append(CodeScheme.from_firebase_map(scheme.to_dict()))
-        return schemes
+        code_schemes = []
+        for code_scheme in self.get_code_schemes_ref(dataset_id).get():
+            code_schemes.append(CodeScheme.from_firebase_map(code_scheme.to_dict()))
+        return code_schemes
