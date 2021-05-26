@@ -369,9 +369,20 @@ class CodaV2Client:
         self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
 
     def compute_segment_coding_progress(self, segment_id, messages=None, force_recount=False):
-        """Compute and return the progress metrics for a given dataset.
-        This method will initialise the counts in Firestore if they do
-        not already exist."""
+        """
+        Compute and return the progress metrics for a given dataset.
+
+        This method will initialise the counts in Firestore if they do not already exist.
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :param messages: list of core_data_modules.data_models.message.Message, defaults to None
+        :type messages: core_data_modules.data_models.message.Message | None
+        :param force_recount: If True, forces the recount of progress metrics. Defaults to False
+        :type force_recount: bool, optional
+        :return: Messages metrics.
+        :rtype: core_data_modules.data_models.metrics.MessagesMetrics
+        """
         if not force_recount:
             segment_messages_metrics = self.get_segment_messages_metrics(segment_id)
             if segment_messages_metrics is not None:
