@@ -352,7 +352,10 @@ class CodaV2Client:
         :return: Messages metrics for a given segment
         :rtype: dict
         """
-        return self.get_segment_messages_metrics_ref(segment_id).get().to_dict()
+        messages_metrics = self.get_segment_messages_metrics_ref(segment_id).get().to_dict()
+        if messages_metrics is None:
+            return None
+        return MessagesMetrics.from_firebase_map(messages_metrics)
 
     def set_segment_messages_metrics(self, segment_id, metrics_map):
         """
