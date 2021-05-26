@@ -395,7 +395,7 @@ class CodaV2Client:
         wrong_scheme_messages = 0
         not_coded_messages = 0
 
-        schemes = {scheme.scheme_id: scheme for scheme in self.get_all_code_schemes(segment_id)}
+        code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(segment_id)}
 
         for message in messages:
             # Get the latest label from each scheme
@@ -417,9 +417,9 @@ class CodaV2Client:
                     continue
 
                 message_has_label = True
-                scheme_for_label = schemes[label.scheme_id]
+                scheme_for_label = code_schemes[label.scheme_id]
                 code_for_label = None
-               
+
                 for code in scheme_for_label.codes:
                     if label.code_id == code.code_id:
                         code_for_label = code
