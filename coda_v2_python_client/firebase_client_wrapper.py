@@ -438,4 +438,4 @@ class CodaV2Client:
 
         # Write the metrics back if they weren't stored
         self.set_segment_messages_metrics(segment_id, messages_metrics)
-        return message_metrics.to_firebase_map()
+        return messages_metrics
