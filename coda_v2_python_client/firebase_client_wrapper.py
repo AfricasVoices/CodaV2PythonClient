@@ -350,7 +350,7 @@ class CodaV2Client:
         :param segment_id: Id of a segment.
         :type segment_id: str
         :return: Messages metrics for a given segment
-        :rtype: dict
+        :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
         messages_metrics = self.get_segment_messages_metrics_ref(segment_id).get().to_dict()
         if messages_metrics is None:
