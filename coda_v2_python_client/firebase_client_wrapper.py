@@ -434,7 +434,6 @@ class CodaV2Client:
             "wrong_scheme_messages": wrong_scheme_messages,
             "not_coded_messages": not_coded_messages
         }
-
         messages_metrics = MessagesMetrics(**messages_metrics_map)
 
         # Write the metrics back if they weren't stored
