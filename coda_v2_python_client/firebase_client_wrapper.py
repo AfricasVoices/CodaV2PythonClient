@@ -367,3 +367,76 @@ class CodaV2Client:
         :type metrics_map: core_data_modules.data_models.metrics.MessagesMetrics
         """
         self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
+
+    def compute_segment_coding_progress(self, segment_id, messages=None, force_recount=False):
+        """Compute and return the progress metrics for a given dataset.
+        This method will initialise the counts in Firestore if they do
+        not already exist."""
+        if not force_recount:
+            segment_messages_metrics = self.get_segment_messages_metrics(segment_id)
+            if segment_messages_metrics is not None:
+                return segment_messages_metrics
+
+        print(f"Performing a full recount of the metrics for segment {segment_id}...")
+        if messages is None:
+            messages = self.get_segment_messages(segment_id)
+        messages_with_labels = 0
+        wrong_scheme_messages = 0
+        not_coded_messages = 0
+
+        schemes = {scheme.scheme_id: scheme for scheme in self.get_all_code_schemes(segment_id)}
+
+        for message in messages:
+            # Get the latest label from each scheme
+            latest_labels = dict()  # of scheme id -> label
+            for label in message.labels:
+                if label.scheme_id not in latest_labels:
+                    latest_labels[label.scheme_id] = label
+
+            # Test if the message has a label (that isn't SPECIAL-MANUALLY_UNCODED), and
+            # if any of the latest labels are either WS or NC
+            message_has_label = False
+            message_has_ws = False
+            message_has_nc = False
+            for label in latest_labels.values():
+                if label.code_id == "SPECIAL-MANUALLY_UNCODED":
+                    continue
+
+                if not label.checked:
+                    continue
+
+                message_has_label = True
+                scheme_for_label = schemes[label.scheme_id]
+                code_for_label = None
+               
+                for code in scheme_for_label.codes:
+                    if label.code_id == code.code_id:
+                        code_for_label = code
+                assert code_for_label is not None
+
+                if code_for_label.code_type == "Control":
+                    if code_for_label.control_code == "WS":
+                        message_has_ws = True
+                    if code_for_label.control_code == "NC":
+                        message_has_nc = True
+
+            # Update counts appropriately
+            if message_has_label:
+                messages_with_labels += 1
+            if message_has_ws:
+                wrong_scheme_messages += 1
+            if message_has_nc:
+                not_coded_messages += 1
+
+        messages_metrics_map = {
+            "messages_count": len(messages),
+            "messages_with_label": messages_with_labels,
+            "wrong_scheme_messages": wrong_scheme_messages,
+            "not_coded_messages": not_coded_messages
+        }
+
+        message_metrics = MessagesMetrics(**messages_metrics_map)
+
+        # Write the metrics back if they weren't stored
+        self.set_segment_messages_metrics(segment_id, message_metrics)
+        return message_metrics.to_firebase_map()
