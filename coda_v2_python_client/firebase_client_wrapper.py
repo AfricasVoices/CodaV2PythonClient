@@ -357,13 +357,13 @@ class CodaV2Client:
             return None
         return MessagesMetrics.from_firebase_map(messages_metrics)
 
-    def set_segment_messages_metrics(self, segment_id, metrics_map):
+    def set_segment_messages_metrics(self, segment_id, messages_metrics):
         """
         Sets messages metrics for a given segment
 
         :param segment_id: Id of a segment.
         :type segment_id: str
         :param metrics_map: Messages metrics.
-        :type metrics_map: dict
+        :type metrics_map: core_data_modules.data_models.metrics.MessagesMetrics
         """
-        self.get_segment_messages_metrics_ref(segment_id).set(metrics_map)
+        self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
