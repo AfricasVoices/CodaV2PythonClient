@@ -383,7 +383,6 @@ class CodaV2Client:
         :return: Messages metrics.
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
-        log.debug(f"Performing a full recount of the metrics for segment {segment_id}...")
         if messages is None:
             messages = self.get_segment_messages(segment_id)
         messages_with_labels = 0
