@@ -439,13 +439,7 @@ class CodaV2Client:
             if message_has_nc:
                 not_coded_messages += 1
 
-        messages_metrics_map = {
-            "messages_count": len(messages),
-            "messages_with_label": messages_with_labels,
-            "wrong_scheme_messages": wrong_scheme_messages,
-            "not_coded_messages": not_coded_messages
-        }
-        messages_metrics = MessagesMetrics(**messages_metrics_map)
+        messages_metrics = MessagesMetrics(len(messages), messages_with_labels, wrong_scheme_messages, not_coded_messages)  # nopep8
 
         # Write the metrics back if they weren't stored
         self.set_segment_messages_metrics(segment_id, messages_metrics)
