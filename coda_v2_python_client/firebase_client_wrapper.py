@@ -388,7 +388,7 @@ class CodaV2Client:
             if segment_messages_metrics is not None:
                 return segment_messages_metrics
 
-        print(f"Performing a full recount of the metrics for segment {segment_id}...")
+        log.debug(f"Performing a full recount of the metrics for segment {segment_id}...")
         if messages is None:
             messages = self.get_segment_messages(segment_id)
         messages_with_labels = 0
