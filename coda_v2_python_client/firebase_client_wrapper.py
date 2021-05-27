@@ -116,6 +116,17 @@ class CodaV2Client:
             return None
         return segment_count_doc["segment_count"]
 
+    def set_segment_count(self, dataset_id, segment_count):
+        """
+        Sets number of segments for a given dataset.
+
+        :param dataset_id: Id of a dataset
+        :type dataset_id: str
+        :param segment_count: Number of segment for a given dataset.
+        :type segment_count: int
+        """
+        self._client.document(f"segment_counts/{dataset_id}").set({"segment_count": segment_count})
+
     def get_message_ref(self, segment_id, message_id):
         """ 
         Gets Firestore database reference to a message.
