@@ -452,6 +452,12 @@ class CodaV2Client:
         return messages_metrics
 
     def compute_coding_progress(self, dataset_id):
+        """
+        Computes coding progress of the given dataset.
+
+        :param dataset_id: Id of the dataset to compute coding progress.
+        :type dataset_id: str
+        """
         segment_count = self.get_segment_count(dataset_id)
         if segment_count is None or segment_count == 1:
             compute_segment_coding_progress(dataset_id)
