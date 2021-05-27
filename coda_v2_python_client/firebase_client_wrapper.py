@@ -6,6 +6,7 @@ from firebase_admin import firestore
 from core_data_modules.logging import Logger
 from core_data_modules.data_models import Message
 from core_data_modules.data_models import CodeScheme
+from core_data_modules.data_models import MessagesMetrics
 
 log = Logger(__name__)
 
