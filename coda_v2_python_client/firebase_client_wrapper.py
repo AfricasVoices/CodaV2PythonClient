@@ -534,4 +534,4 @@ class CodaV2Client:
                 segment_id = self.id_for_segment(dataset_id, segment_index)
                 batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
         batch.commit()
-        print(f"Wrote users to dataset {dataset_id}")
+        log.debug(f"Wrote users to dataset {dataset_id}")
