@@ -377,6 +377,8 @@ class CodaV2Client:
         :param segment_id: Id of a segment.
         :type segment_id: str
         :param messages: list of core_data_modules.data_models.message.Message, defaults to None
+        :param messages: If specified, it computes progress metrics based on the provided messages
+                         else it downloads messages from the requested segment. Defaults to None.
         :type messages: core_data_modules.data_models.message.Message | None
         :param force_recount: If True, forces the recount of progress metrics. Defaults to False
         :type force_recount: bool, optional
