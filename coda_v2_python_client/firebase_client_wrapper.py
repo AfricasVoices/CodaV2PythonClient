@@ -128,6 +128,41 @@ class CodaV2Client:
         """
         self._client.document(f"segment_counts/{dataset_id}").set({"segment_count": segment_count})
 
+    def create_next_segment(self, dataset_id):
+        """
+        Creates a new segment for a given dataset
+
+        :param dataset_id: Id of the dataset to create segment for.
+        :type dataset_id: str
+        """
+        segment_count = self.get_segment_count(dataset_id)
+
+        if segment_count is None:
+            current_segment_id = dataset_id
+            next_segment_id = f"{dataset_id}_2"
+            next_segment_count = 2
+        else:
+            current_segment_id = f"{dataset_id}_{segment_count}"
+            next_segment_id = f"{dataset_id}_{segment_count + 1}"
+            next_segment_count = segment_count + 1
+
+        log.debug(f"Creating next dataset segment with id {next_segment_id}")
+
+        code_schemes = self.get_all_code_schemes(current_segment_id)
+        self.add_and_update_code_schemes(next_segment_id, code_schemes)
+
+        users = self.get_user_ids(current_segment_id)
+        self.set_user_ids(next_segment_id, users)
+
+        self.set_segment_count(dataset_id, next_segment_count)
+
+        for x in range(0, 10):
+            if self.get_segment_count(dataset_id) == next_segment_count:
+                return
+            log.debug("New segment count not yet committed, waiting 1s before retrying")
+            time.sleep(1)
+        assert False, "Server segment count did not update to the newest count fast enough"
+
     def get_message_ref(self, segment_id, message_id):
         """ 
         Gets Firestore database reference to a message.
