@@ -430,3 +430,88 @@ class CodaV2Client:
 
         self.set_segment_messages_metrics(segment_id, messages_metrics)
         return messages_metrics
+
+    def get_segment_ref(self, segment_id):
+        """
+        Gets Firestore database reference to a segment.
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :return: A reference to a document in a Firestore database
+        :rtype: google.cloud.firestore_v1.document.DocumentReference
+        """
+        return self._client.document(f"datasets/{segment_id}")
+
+    def get_segment(self, segment_id):
+        """
+        Gets segment by id.
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :return: A snapshot of document data in a Firestore database.
+        :rtype: google.cloud.firestore_v1.base_document.DocumentSnapshot
+        """
+        return self.get_segment_ref(segment_id).get()
+
+    def get_segment_user_ids(self, segment_id):
+        """
+        Gets user id in the given segment.
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :return: list of user ids.
+        :rtype: list
+        """
+        return self.get_segment(segment_id).get("users")
+
+    def ensure_user_ids_consistent(self, dataset_id):
+        """
+        Ensures user ids are consistent across all segments of the dataset.
+
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        """
+        # Perform a consistency check on the other segments if they exist
+        segment_count = self.get_segment_count(dataset_id)
+        if segment_count is None or segment_count == 1:
+            return
+
+        first_segment_users = self.get_segment(dataset_id).get("users")
+        for segment_index in range(2, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            assert set(self.get_segment_user_ids(segment_id)) == set(first_segment_users), \
+                f"Segment {segment_id} has different users to the first segment {dataset_id}"
+
+    def get_user_ids(self, dataset_id):
+        """
+        Gets user ids for the given dataset.
+
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        :return: list of user ids.
+        :rtype: list
+        """
+        self.ensure_user_ids_consistent(dataset_id)
+
+        users = self.get_segment(dataset_id).get("users")
+        return users
+
+    def set_user_ids(self, dataset_id, user_ids):
+        """
+        Sets user ids for the given dataset.
+
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        :param user_ids: list of user ids.
+        :type user_ids: list
+        """
+        segment_count = self.get_segment_count(dataset_id)
+        batch = self._client.batch()
+        if segment_count is None or segment_count == 1:
+            batch.set(self.get_segment_ref(dataset_id), {"users": user_ids})
+        else:
+            for segment_index in range(1, segment_count + 1):
+                segment_id = self.id_for_segment(dataset_id, segment_index)
+                batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
+        batch.commit()
+        log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
