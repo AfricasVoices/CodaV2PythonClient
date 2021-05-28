@@ -403,9 +403,6 @@ class CodaV2Client:
             latest_labels = message.get_latest_labels()
 
             for label in latest_labels:
-                if label.code_id == "SPECIAL-MANUALLY_UNCODED":
-                    continue
-
                 if not label.checked:
                     continue
 
