@@ -360,9 +360,9 @@ class CodaV2Client:
         batch.commit()
         log.debug(f"Wrote scheme: {scheme_id}")
 
-    def add_and_update_code_schemes(self, dataset_id, schemes):
-        for scheme in schemes:
-            self.set_code_scheme(dataset_id, scheme)
+    def add_and_update_code_schemes(self, dataset_id, code_schemes):
+        for code_scheme in code_schemes:
+            self.set_code_scheme(dataset_id, code_scheme)
 
     def get_segment_messages_metrics_ref(self, segment_id):
         """
