@@ -345,9 +345,27 @@ class CodaV2Client:
         return code_schemes
 
     def get_segment_code_scheme_ref(self, segment_id, scheme_id):
+        """
+        Gets Firestore database reference to a code scheme.
+
+        :param segment_id: Id of a segment that has the code scheme given.
+        :type segment_id: str
+        :param scheme_id: Id of a code scheme to get the reference for.
+        :type scheme_id: str
+        :return: A reference to a document in a Firestore database.
+        :rtype: google.cloud.firestore_v1.document.DocumentReference
+        """
         return self._client.document(f"datasets/{segment_id}/code_schemes/{scheme_id}")
 
     def set_code_scheme(self, dataset_id, code_scheme):
+        """
+        Sets a code scheme for a given dataset.
+
+        :param dataset_id: Id of the dataset to set the code scheme for.
+        :type dataset_id: str
+        :param code_scheme: Code scheme to be set.
+        :type code_scheme: core_data_modules.data_models.code_scheme.CodeScheme
+        """
         scheme_id = code_scheme.scheme_id
         segment_count = self.get_segment_count(dataset_id)
         batch = self._client.batch()
@@ -361,6 +379,14 @@ class CodaV2Client:
         log.debug(f"Wrote scheme: {scheme_id}")
 
     def add_and_update_code_schemes(self, dataset_id, code_schemes):
+        """
+        Adds or updates code schemes 
+
+        :param dataset_id: Id of the dataset to add or update the code schemes for.
+        :type dataset_id: str
+        :param code_schemes: Code schemes to be added or updated.
+        :type code_schemes: list of core_data_modules.data_models.code_scheme.CodeScheme
+        """
         for code_scheme in code_schemes:
             self.set_code_scheme(dataset_id, code_scheme)
 
