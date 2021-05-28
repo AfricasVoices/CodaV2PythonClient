@@ -344,6 +344,52 @@ class CodaV2Client:
             code_schemes.append(CodeScheme.from_firebase_map(doc.to_dict()))
         return code_schemes
 
+    def get_segment_code_scheme_ref(self, segment_id, scheme_id):
+        """
+        Gets Firestore database reference to a code scheme.
+
+        :param segment_id: Id of a segment that has the code scheme given.
+        :type segment_id: str
+        :param scheme_id: Id of a code scheme to get the reference for.
+        :type scheme_id: str
+        :return: A reference to a document in a Firestore database.
+        :rtype: google.cloud.firestore_v1.document.DocumentReference
+        """
+        return self._client.document(f"datasets/{segment_id}/code_schemes/{scheme_id}")
+
+    def set_code_scheme(self, dataset_id, code_scheme):
+        """
+        Sets a code scheme for a given dataset.
+
+        :param dataset_id: Id of the dataset to set the code scheme for.
+        :type dataset_id: str
+        :param code_scheme: Code scheme to be set.
+        :type code_scheme: core_data_modules.data_models.code_scheme.CodeScheme
+        """
+        scheme_id = code_scheme.scheme_id
+        segment_count = self.get_segment_count(dataset_id)
+        batch = self._client.batch()
+        if segment_count is None or segment_count == 1:
+            batch.set(self.get_segment_code_scheme_ref(dataset_id, scheme_id), code_scheme.to_firebase_map())
+        else:
+            for segment_index in range(1, segment_count + 1):
+                segment_id = self.id_for_segment(dataset_id, segment_index)
+                batch.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme.to_firebase_map())
+        batch.commit()
+        log.debug(f"Wrote scheme: {scheme_id}")
+
+    def add_and_update_code_schemes(self, dataset_id, code_schemes):
+        """
+        Adds or updates code schemes for a given dataset. 
+
+        :param dataset_id: Id of the dataset to add or update the code schemes for.
+        :type dataset_id: str
+        :param code_schemes: Code schemes to be added or updated.
+        :type code_schemes: list of core_data_modules.data_models.code_scheme.CodeScheme
+        """
+        for code_scheme in code_schemes:
+            self.set_code_scheme(dataset_id, code_scheme)
+
     def get_segment_messages_metrics_ref(self, segment_id):
         """
         Gets Firestore database reference to messages metrics.
