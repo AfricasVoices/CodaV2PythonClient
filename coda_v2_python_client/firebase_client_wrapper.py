@@ -361,7 +361,6 @@ class CodaV2Client:
         log.debug(f"Wrote scheme: {scheme_id}")
 
     def add_and_update_code_schemes(self, dataset_id, schemes):
-        # TODO: Implement more efficiently
         for scheme in schemes:
             self.set_code_scheme(dataset_id, scheme)
 
