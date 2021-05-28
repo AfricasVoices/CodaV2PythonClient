@@ -6,6 +6,7 @@ from firebase_admin import firestore
 from core_data_modules.logging import Logger
 from core_data_modules.data_models import Message
 from core_data_modules.data_models import CodeScheme
+from core_data_modules.data_models import MessagesMetrics
 
 log = Logger(__name__)
 
@@ -367,3 +368,65 @@ class CodaV2Client:
         :type metrics_map: core_data_modules.data_models.metrics.MessagesMetrics
         """
         self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
+
+    def compute_segment_coding_progress(self, segment_id, messages=None):
+        """
+        Compute and return the progress metrics for a given dataset.
+
+        This method will initialise the counts in Firestore if they do not already exist.
+
+        :param segment_id: Id of a segment.
+        :type segment_id: str
+        :param messages: list of core_data_modules.data_models.message.Message, defaults to None
+        :param messages: If specified, it computes progress metrics based on the provided messages
+                         else it downloads messages from the requested segment. Defaults to None.
+        :type messages: core_data_modules.data_models.message.Message | None
+        :return: Messages metrics.
+        :rtype: core_data_modules.data_models.metrics.MessagesMetrics
+        """
+        if messages is None:
+            messages = self.get_segment_messages(segment_id)
+
+        messages_with_labels = 0
+        wrong_scheme_messages = 0
+        not_coded_messages = 0
+
+        code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(segment_id)}
+
+        for message in messages:
+            # Test if the message has a label and if any of the latest labels are either WS or NC
+            message_has_label = False
+            message_has_ws = False
+            message_has_nc = False
+
+            for label in message.get_latest_labels():
+                if not label.checked:
+                    continue
+
+                message_has_label = True
+                code_scheme_for_label = code_schemes[label.scheme_id]
+                code_for_label = None
+
+                for code in code_scheme_for_label.codes:
+                    if label.code_id == code.code_id:
+                        code_for_label = code
+
+                assert code_for_label is not None
+                if code_for_label.code_type == "Control":
+                    if code_for_label.control_code == "WS":
+                        message_has_ws = True
+                    if code_for_label.control_code == "NC":
+                        message_has_nc = True
+
+            # Update counts appropriately
+            if message_has_label:
+                messages_with_labels += 1
+            if message_has_ws:
+                wrong_scheme_messages += 1
+            if message_has_nc:
+                not_coded_messages += 1
+
+        messages_metrics = MessagesMetrics(len(messages), messages_with_labels, wrong_scheme_messages, not_coded_messages)  # nopep8
+
+        self.set_segment_messages_metrics(segment_id, messages_metrics)
+        return messages_metrics
