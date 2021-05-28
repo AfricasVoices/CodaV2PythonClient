@@ -393,8 +393,7 @@ class CodaV2Client:
         code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(segment_id)}
 
         for message in messages:
-            # Test if the message has a label (that isn't SPECIAL-MANUALLY_UNCODED), and
-            # if any of the latest labels are either WS or NC
+            # Test if the message has a label and if any of the latest labels are either WS or NC
             message_has_label = False
             message_has_ws = False
             message_has_nc = False
