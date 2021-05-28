@@ -380,7 +380,7 @@ class CodaV2Client:
 
     def add_and_update_code_schemes(self, dataset_id, code_schemes):
         """
-        Adds or updates code schemes 
+        Adds or updates code schemes. 
 
         :param dataset_id: Id of the dataset to add or update the code schemes for.
         :type dataset_id: str
