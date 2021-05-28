@@ -386,7 +386,7 @@ class CodaV2Client:
         """
         if messages is None:
             messages = self.get_segment_messages(segment_id)
-            
+
         messages_with_labels = 0
         wrong_scheme_messages = 0
         not_coded_messages = 0
@@ -399,7 +399,7 @@ class CodaV2Client:
             message_has_ws = False
             message_has_nc = False
 
-            # Get the latest label from each scheme
+            # Get the latest label from each code scheme
             latest_labels = message.get_latest_labels()
 
             for label in latest_labels:
