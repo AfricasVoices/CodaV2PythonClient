@@ -394,7 +394,7 @@ class CodaV2Client:
 
         for message in messages:
             # Get the latest label from each scheme
-            latest_labels = {label.scheme_id: label for label in message.get_latest_labels()} # of scheme id -> label
+            latest_labels = message.get_latest_labels()
 
             # Test if the message has a label (that isn't SPECIAL-MANUALLY_UNCODED), and
             # if any of the latest labels are either WS or NC
