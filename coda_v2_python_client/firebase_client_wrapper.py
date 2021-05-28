@@ -6,6 +6,7 @@ from firebase_admin import firestore
 from core_data_modules.logging import Logger
 from core_data_modules.data_models import Message
 from core_data_modules.data_models import CodeScheme
+from core_data_modules.data_models import MessagesMetrics
 
 log = Logger(__name__)
 
@@ -368,7 +369,7 @@ class CodaV2Client:
         """
         self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
 
-    def compute_segment_coding_progress(self, segment_id, messages=None, force_recount=False):
+    def compute_segment_coding_progress(self, segment_id, messages=None):
         """
         Compute and return the progress metrics for a given dataset.
 
@@ -377,20 +378,15 @@ class CodaV2Client:
         :param segment_id: Id of a segment.
         :type segment_id: str
         :param messages: list of core_data_modules.data_models.message.Message, defaults to None
+        :param messages: If specified, it computes progress metrics based on the provided messages
+                         else it downloads messages from the requested segment. Defaults to None.
         :type messages: core_data_modules.data_models.message.Message | None
-        :param force_recount: If True, forces the recount of progress metrics. Defaults to False
-        :type force_recount: bool, optional
         :return: Messages metrics.
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
-        if not force_recount:
-            segment_messages_metrics = self.get_segment_messages_metrics(segment_id)
-            if segment_messages_metrics is not None:
-                return segment_messages_metrics
-
-        print(f"Performing a full recount of the metrics for segment {segment_id}...")
         if messages is None:
             messages = self.get_segment_messages(segment_id)
+
         messages_with_labels = 0
         wrong_scheme_messages = 0
         not_coded_messages = 0
@@ -398,33 +394,24 @@ class CodaV2Client:
         code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(segment_id)}
 
         for message in messages:
-            # Get the latest label from each scheme
-            latest_labels = dict()  # of scheme id -> label
-            for label in message.labels:
-                if label.scheme_id not in latest_labels:
-                    latest_labels[label.scheme_id] = label
-
-            # Test if the message has a label (that isn't SPECIAL-MANUALLY_UNCODED), and
-            # if any of the latest labels are either WS or NC
+            # Test if the message has a label and if any of the latest labels are either WS or NC
             message_has_label = False
             message_has_ws = False
             message_has_nc = False
-            for label in latest_labels.values():
-                if label.code_id == "SPECIAL-MANUALLY_UNCODED":
-                    continue
 
+            for label in message.get_latest_labels():
                 if not label.checked:
                     continue
 
                 message_has_label = True
-                scheme_for_label = code_schemes[label.scheme_id]
+                code_scheme_for_label = code_schemes[label.scheme_id]
                 code_for_label = None
 
-                for code in scheme_for_label.codes:
+                for code in code_scheme_for_label.codes:
                     if label.code_id == code.code_id:
                         code_for_label = code
-                assert code_for_label is not None
 
+                assert code_for_label is not None
                 if code_for_label.code_type == "Control":
                     if code_for_label.control_code == "WS":
                         message_has_ws = True
@@ -439,15 +426,8 @@ class CodaV2Client:
             if message_has_nc:
                 not_coded_messages += 1
 
-        messages_metrics_map = {
-            "messages_count": len(messages),
-            "messages_with_label": messages_with_labels,
-            "wrong_scheme_messages": wrong_scheme_messages,
-            "not_coded_messages": not_coded_messages
-        }
-        messages_metrics = MessagesMetrics(**messages_metrics_map)
+        messages_metrics = MessagesMetrics(len(messages), messages_with_labels, wrong_scheme_messages, not_coded_messages)  # nopep8
 
-        # Write the metrics back if they weren't stored
         self.set_segment_messages_metrics(segment_id, messages_metrics)
         return messages_metrics
 
