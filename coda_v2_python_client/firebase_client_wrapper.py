@@ -399,10 +399,7 @@ class CodaV2Client:
             message_has_ws = False
             message_has_nc = False
 
-            # Get the latest label from each code scheme
-            latest_labels = message.get_latest_labels()
-
-            for label in latest_labels:
+            for label in message.get_latest_labels():
                 if not label.checked:
                     continue
 
