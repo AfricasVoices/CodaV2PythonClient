@@ -344,6 +344,27 @@ class CodaV2Client:
             code_schemes.append(CodeScheme.from_firebase_map(doc.to_dict()))
         return code_schemes
 
+    def get_segment_code_scheme_ref(self, segment_id, scheme_id):
+        return self._client.document(f"datasets/{segment_id}/code_schemes/{scheme_id}")
+
+    def set_code_scheme(self, dataset_id, code_scheme):
+        scheme_id = code_scheme.scheme_id
+        segment_count = self.get_segment_count(dataset_id)
+        batch = self._client.batch()
+        if segment_count is None or segment_count == 1:
+            batch.set(self.get_segment_code_scheme_ref(dataset_id, scheme_id), code_scheme)
+        else:
+            for segment_index in range(1, segment_count + 1):
+                segment_id = self.id_for_segment(dataset_id, segment_index)
+                batch.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme)
+        batch.commit()
+        log.debug(f"Wrote scheme: {scheme_id}")
+
+    def add_and_update_code_schemes(self, dataset_id, schemes):
+        # TODO: Implement more efficiently
+        for scheme in schemes:
+            self.set_code_scheme(dataset_id, scheme)
+
     def get_segment_messages_metrics_ref(self, segment_id):
         """
         Gets Firestore database reference to messages metrics.
