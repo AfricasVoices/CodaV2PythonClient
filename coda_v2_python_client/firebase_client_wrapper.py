@@ -393,15 +393,16 @@ class CodaV2Client:
         code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(segment_id)}
 
         for message in messages:
-            # Get the latest label from each scheme
-            latest_labels = message.get_latest_labels()
-
             # Test if the message has a label (that isn't SPECIAL-MANUALLY_UNCODED), and
             # if any of the latest labels are either WS or NC
             message_has_label = False
             message_has_ws = False
             message_has_nc = False
-            for label in latest_labels.values():
+
+            # Get the latest label from each scheme
+            latest_labels = message.get_latest_labels()
+
+            for label in latest_labels:
                 if label.code_id == "SPECIAL-MANUALLY_UNCODED":
                     continue
 
