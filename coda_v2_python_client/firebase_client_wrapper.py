@@ -407,10 +407,10 @@ class CodaV2Client:
                     continue
 
                 message_has_label = True
-                scheme_for_label = code_schemes[label.scheme_id]
+                code_scheme_for_label = code_schemes[label.scheme_id]
                 code_for_label = None
 
-                for code in scheme_for_label.codes:
+                for code in code_scheme_for_label.codes:
                     if label.code_id == code.code_id:
                         code_for_label = code
                 assert code_for_label is not None
