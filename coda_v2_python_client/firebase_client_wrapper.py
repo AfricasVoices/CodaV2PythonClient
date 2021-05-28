@@ -386,6 +386,7 @@ class CodaV2Client:
         """
         if messages is None:
             messages = self.get_segment_messages(segment_id)
+            
         messages_with_labels = 0
         wrong_scheme_messages = 0
         not_coded_messages = 0
