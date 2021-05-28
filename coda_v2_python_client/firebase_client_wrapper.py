@@ -129,6 +129,12 @@ class CodaV2Client:
         self._client.document(f"segment_counts/{dataset_id}").set({"segment_count": segment_count})
 
     def create_next_segment(self, dataset_id):
+        """
+        Creates a new segment for a given dataset
+
+        :param dataset_id: Id of the dataset to create segment for.
+        :type dataset_id: str
+        """
         segment_count = self.get_segment_count(dataset_id)
 
         if segment_count is None:
