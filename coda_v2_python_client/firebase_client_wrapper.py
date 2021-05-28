@@ -413,8 +413,8 @@ class CodaV2Client:
                 for code in code_scheme_for_label.codes:
                     if label.code_id == code.code_id:
                         code_for_label = code
-                assert code_for_label is not None
 
+                assert code_for_label is not None
                 if code_for_label.code_type == "Control":
                     if code_for_label.control_code == "WS":
                         message_has_ws = True
