@@ -634,11 +634,10 @@ class CodaV2Client:
         :param MAX_SEGMENT_SIZE: the maximum size for a segment, defaults to 2500
         :type MAX_SEGMENT_SIZE: int, optional
         """
-
-        # Note: We need to read the latest segment so we know how big it is, but there's no need to check previous segments.
         existing_segment_messages = dict()  # of segment id -> (dict of message id -> Message)
         latest_segment_index = self.get_segment_count(dataset_id)
         latest_segment_id = self.id_for_segment(dataset_id, latest_segment_index)
+        # Note: We need to read the latest segment so we know how big it is, but there's no need to check previous segments.
         existing_segment_messages[latest_segment_id] = self.get_segment_messages(self.id_for_segment(latest_segment_id))
 
         latest_segment_size = len(existing_segment_messages[latest_segment_id])
