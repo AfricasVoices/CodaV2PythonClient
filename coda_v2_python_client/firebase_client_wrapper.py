@@ -622,3 +622,31 @@ class CodaV2Client:
                 batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
+
+    def add_message_to_dataset(self, dataset_id, message):
+        assert "SequenceNumber" in message
+
+        # Note: We need to read the latest segment so we know how big it is, but there's no need to check previous segments.
+        existing_segment_messages = dict()  # of segment id -> (dict of message id -> Message)
+        latest_segment_index = self.get_segment_count(dataset_id)
+        latest_segment_id = self.id_for_segment(dataset_id, latest_segment_index)
+        existing_segment_messages[latest_segment_id] = self.get_segment_messages(self.id_for_segment(latest_segment_id))
+
+        latest_segment_size = len(existing_segment_messages[latest_segment_id])
+        if latest_segment_size >= MAX_SEGMENT_SIZE:
+            self.create_next_segment(dataset_id)
+            latest_segment_index = self.get_segment_count(dataset_id)
+            latest_segment_id = self.id_for_segment(dataset_id, latest_segment_index)
+            existing_segment_messages[self.id_for_segment(dataset_id, latest_segment_index)] = []
+
+        message = message.copy()
+        message.last_updated = firestore.firestore.SERVER_TIMESTAMP
+
+        batch = self._client.batch()
+        # Note: Each document costs 2 writes due to the additional write needed by the server to set LastUpdated
+        batch.set(self.get_message_ref(segment_id, message["MessageID"]), message)
+        batch.commit()
+
+        existing_segment_messages[segment_id].append(message)
+        for segment_id, segment_messages in existing_segment_messages.items():
+            self.compute_segment_coding_progress(segment_id, segment_messages, True)
