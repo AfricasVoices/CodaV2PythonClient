@@ -624,6 +624,17 @@ class CodaV2Client:
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
     def add_message_to_dataset(self, dataset_id, message, MAX_SEGMENT_SIZE=2500):
+        """
+        Adds message to a given dataset.
+
+        :param dataset_id: Id of the dataset to add the message into.
+        :type dataset_id: str
+        :param message: The message to be added.
+        :type message: core_data_modules.data_models.message.Message
+        :param MAX_SEGMENT_SIZE: the maximum size for a segment, defaults to 2500
+        :type MAX_SEGMENT_SIZE: int, optional
+        """
+
         # Note: We need to read the latest segment so we know how big it is, but there's no need to check previous segments.
         existing_segment_messages = dict()  # of segment id -> (dict of message id -> Message)
         latest_segment_index = self.get_segment_count(dataset_id)
