@@ -649,4 +649,4 @@ class CodaV2Client:
 
         existing_segment_messages[latest_segment_id].append(message)
         for segment_id, segment_messages in existing_segment_messages.items():
-            self.compute_segment_coding_progress(segment_id, segment_messages, True)
+            self.compute_segment_coding_progress(segment_id, segment_messages)
