@@ -624,8 +624,6 @@ class CodaV2Client:
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
     def add_message_to_dataset(self, dataset_id, message):
-        assert "SequenceNumber" in message
-
         # Note: We need to read the latest segment so we know how big it is, but there's no need to check previous segments.
         existing_segment_messages = dict()  # of segment id -> (dict of message id -> Message)
         latest_segment_index = self.get_segment_count(dataset_id)
