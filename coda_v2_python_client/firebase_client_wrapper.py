@@ -648,10 +648,10 @@ class CodaV2Client:
             latest_segment_id = self.id_for_segment(dataset_id, latest_segment_index)
             existing_segment_messages[self.id_for_segment(dataset_id, latest_segment_index)] = []
 
+        batch = self._client.batch()
+
         message = message.copy()
         message.last_updated = firestore.firestore.SERVER_TIMESTAMP
-
-        batch = self._client.batch()
         # Note: Each document costs 2 writes due to the additional write needed by the server to set last_updated
         batch.set(self.get_message_ref(latest_segment_id, message.message_id), message.to_firebase_map())
         batch.commit()
