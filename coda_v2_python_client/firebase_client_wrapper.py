@@ -623,7 +623,9 @@ class CodaV2Client:
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
-    def add_message_to_dataset(self, dataset_id, message, MAX_SEGMENT_SIZE=2500):
+    MAX_SEGMENT_SIZE = 2500
+
+    def add_message_to_dataset(self, dataset_id, message, max_segment_size=MAX_SEGMENT_SIZE):
         """
         Adds message to a given dataset.
 
