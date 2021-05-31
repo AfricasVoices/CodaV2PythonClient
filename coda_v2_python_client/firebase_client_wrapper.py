@@ -647,6 +647,6 @@ class CodaV2Client:
         batch.set(self.get_message_ref(latest_segment_id, message["MessageID"]), message)
         batch.commit()
 
-        existing_segment_messages[segment_id].append(message)
+        existing_segment_messages[latest_segment_id].append(message)
         for segment_id, segment_messages in existing_segment_messages.items():
             self.compute_segment_coding_progress(segment_id, segment_messages, True)
