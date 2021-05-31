@@ -644,7 +644,7 @@ class CodaV2Client:
 
         batch = self._client.batch()
         # Note: Each document costs 2 writes due to the additional write needed by the server to set LastUpdated
-        batch.set(self.get_message_ref(latest_segment_id, message["MessageID"]), message)
+        batch.set(self.get_message_ref(latest_segment_id, message.message_id), message.to_firebase_map())
         batch.commit()
 
         existing_segment_messages[latest_segment_id].append(message)
