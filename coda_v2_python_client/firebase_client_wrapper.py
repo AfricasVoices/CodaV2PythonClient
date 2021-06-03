@@ -653,7 +653,6 @@ class CodaV2Client:
 
         message = message.copy()
         message.last_updated = firestore.firestore.SERVER_TIMESTAMP
-        # Note: Each document costs 2 writes due to the additional write needed by the server to set last_updated
         batch.set(self.get_message_ref(latest_segment_id, message.message_id), message.to_firebase_map())
         batch.commit()
 
