@@ -461,7 +461,7 @@ class CodaV2Client:
         """
         self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
 
-    def compute_segment_coding_progress(self, segment_id, messages=None):
+    def compute_segment_coding_progress(self, segment_id, messages=None, incrementalUpdate=False):
         """
         Compute and return the progress metrics for a given dataset.
 
@@ -477,6 +477,7 @@ class CodaV2Client:
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
         if messages is None:
+            assert not incrementalUpdate, "You've enabled incremental update without a list of messages"
             messages = self.get_segment_messages(segment_id)
 
         messages_with_labels = 0
@@ -519,6 +520,15 @@ class CodaV2Client:
                 not_coded_messages += 1
 
         messages_metrics = MessagesMetrics(len(messages), messages_with_labels, wrong_scheme_messages, not_coded_messages)  # nopep8
+
+        if incrementalUpdate:
+            self.get_segment_messages_metrics_ref(segment_id).update({
+                "messages_count": firestore.Increment(messages_metrics.messages_count),
+                "messages_with_label": firestore.Increment(messages_metrics.messages_with_label),
+                "not_coded_messages": firestore.Increment(messages_metrics.not_coded_messages),
+                "wrong_scheme_messages": firestore.Increment(messages_metrics.wrong_scheme_messages)
+            })
+            return messages_metrics 
 
         self.set_segment_messages_metrics(segment_id, messages_metrics)
         return messages_metrics
