@@ -633,8 +633,8 @@ class CodaV2Client:
         :type dataset_id: str
         :param message: The message to be added.
         :type message: core_data_modules.data_models.message.Message
-        :param MAX_SEGMENT_SIZE: the maximum size for a segment, defaults to 2500
-        :type MAX_SEGMENT_SIZE: int, optional
+        :param max_segment_size: the maximum size for a segment, defaults to 2500
+        :type max_segment_size: int, optional
         """
         existing_segment_messages = dict()  # of segment id -> (dict of message id -> Message)
         latest_segment_index = self.get_segment_count(dataset_id)
