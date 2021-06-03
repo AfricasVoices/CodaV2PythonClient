@@ -636,26 +636,24 @@ class CodaV2Client:
         :param max_segment_size: the maximum size for a segment, defaults to 2500
         :type max_segment_size: int, optional
         """
-        existing_segment_messages = dict()  # of segment id -> (dict of message id -> Message)
-        latest_segment_index = self.get_segment_count(dataset_id)
-        latest_segment_id = self.id_for_segment(dataset_id, latest_segment_index)
-        # Note: We need to read the latest segment so we know how big it is, but there's no need to check previous segments.
-        existing_segment_messages[latest_segment_id] = self.get_segment_messages(self.id_for_segment(latest_segment_id))
+        latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
 
-        latest_segment_size = len(existing_segment_messages[latest_segment_id])
-        if latest_segment_size >= MAX_SEGMENT_SIZE:
+        # Note: We need to read the latest segment so we know how big it is, but there's no need to check previous segments.
+        latest_segment_size = self.get_segment_messages_metrics(latest_segment_id).messages_count
+        if latest_segment_size >= max_segment_size:
             self.create_next_segment(dataset_id)
-            latest_segment_index = self.get_segment_count(dataset_id)
-            latest_segment_id = self.id_for_segment(dataset_id, latest_segment_index)
-            existing_segment_messages[self.id_for_segment(dataset_id, latest_segment_index)] = []
+            latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
 
         batch = self._client.batch()
 
         message = message.copy()
         message.last_updated = firestore.firestore.SERVER_TIMESTAMP
-        batch.set(self.get_message_ref(latest_segment_id, message.message_id), message.to_firebase_map())
+
+        message_ref = self.get_message_ref(latest_segment_id, message.message_id+"h")
+        message_snapshot = message_ref.get()
+
+        assert not message_snapshot.exists, f"message with id {message.message_id} already exists."
+        batch.set(message_ref, message.to_firebase_map())
         batch.commit()
 
-        existing_segment_messages[latest_segment_id].append(message)
-        for segment_id, segment_messages in existing_segment_messages.items():
-            self.compute_segment_coding_progress(segment_id, segment_messages)
+        self.compute_segment_coding_progress(latest_segment_id, [message], True)
