@@ -641,7 +641,6 @@ class CodaV2Client:
             segment_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id)
            
         latest_segment_size = segment_messages_metrics.messages_count
-        self.get_segment_messages_metrics(latest_segment_id)
         if latest_segment_size >= max_segment_size:
             self.create_next_segment(dataset_id)
             latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
