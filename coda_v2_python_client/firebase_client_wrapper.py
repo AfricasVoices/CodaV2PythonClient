@@ -658,8 +658,8 @@ class CodaV2Client:
         batch.set(message_ref, message.to_firebase_map())
         batch.commit()
 
-        computed_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message])
+        added_message_metric = self.compute_segment_messages_metrics(latest_segment_id, [message])
         updated_messages_metrics = dict()
         for attr, value in vars(segment_messages_metrics).items():
-            updated_messages_metrics[attr] = value + getattr(computed_messages_metrics, attr)
+            updated_messages_metrics[attr] = value + getattr(added_message_metric, attr)
         self.set_segment_messages_metrics(latest_segment_id, MessagesMetrics(**updated_messages_metrics))
