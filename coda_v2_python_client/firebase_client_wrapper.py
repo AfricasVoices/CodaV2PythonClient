@@ -645,7 +645,7 @@ class CodaV2Client:
         if latest_segment_size >= max_segment_size:
             self.create_next_segment(dataset_id)
             latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
-            segment_messages_metrics = None
+            segment_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id)
 
         batch = self._client.batch()
 
@@ -660,10 +660,7 @@ class CodaV2Client:
         batch.commit()
 
         computed_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message])
-        if segment_messages_metrics is None:
-            self.set_segment_messages_metrics(latest_segment_id, computed_messages_metrics)
-        else:
-            updated_messages_metrics = dict()
-            for attr, value in vars(segment_messages_metrics).items():
-                updated_messages_metrics[attr] = value + getattr(computed_messages_metrics, attr)
-            self.set_segment_messages_metrics(latest_segment_id, MessagesMetrics(**updated_messages_metrics))
+        updated_messages_metrics = dict()
+        for attr, value in vars(segment_messages_metrics).items():
+            updated_messages_metrics[attr] = value + getattr(computed_messages_metrics, attr)
+        self.set_segment_messages_metrics(latest_segment_id, MessagesMetrics(**updated_messages_metrics))
