@@ -660,6 +660,6 @@ class CodaV2Client:
 
         added_message_metric = self.compute_segment_messages_metrics(latest_segment_id, [message])
         updated_messages_metrics = dict()
-        for attr, value in vars(segment_messages_metrics).items():
+        for attr, value in segment_messages_metrics.to_firebase_map().items():
             updated_messages_metrics[attr] = value + getattr(added_message_metric, attr)
         self.set_segment_messages_metrics(latest_segment_id, MessagesMetrics(**updated_messages_metrics))
