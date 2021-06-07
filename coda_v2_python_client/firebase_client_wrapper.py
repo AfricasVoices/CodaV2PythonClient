@@ -636,10 +636,15 @@ class CodaV2Client:
         latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
 
         # Note: We need to read the latest segment so we know how big it is, but there's no need to check previous segments.
-        latest_segment_size = self.get_segment_messages_metrics(latest_segment_id).messages_count
+        segment_messages_metrics = self.get_segment_messages_metrics(latest_segment_id)
+        if segment_messages_metrics is None:
+            self.compute_segment_messages_metrics(latest_segment_id)
+
+        latest_segment_size = segment_messages_metrics.messages_count
         if latest_segment_size >= max_segment_size:
             self.create_next_segment(dataset_id)
             latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
+            segment_messages_metrics = None
 
         batch = self._client.batch()
 
@@ -653,13 +658,11 @@ class CodaV2Client:
         batch.set(message_ref, message.to_firebase_map())
         batch.commit()
 
-        segment_messages_metrics = self.get_segment_messages_metrics(latest_segment_id)
         computed_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message])
-
         if segment_messages_metrics is None:
-            self.set_segment_messages_metrics(latest_segment_id, computed_messages_metrics.to_firebase_map())
+            self.set_segment_messages_metrics(latest_segment_id, computed_messages_metrics)
         else:
             updated_messages_metrics = dict()
             for attr, value in vars(segment_messages_metrics).items():
                 updated_messages_metrics[attr] = value + getattr(computed_messages_metrics, attr)
-            self.set_segment_messages_metrics(latest_segment_id, updated_messages_metrics)
+            self.set_segment_messages_metrics(latest_segment_id, MessagesMetrics(**updated_messages_metrics))
