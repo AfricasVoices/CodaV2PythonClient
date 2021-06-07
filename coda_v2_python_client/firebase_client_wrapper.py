@@ -653,4 +653,13 @@ class CodaV2Client:
         batch.set(message_ref, message.to_firebase_map())
         batch.commit()
 
-        self.compute_segment_coding_progress(latest_segment_id, [message], True)
+        segment_messages_metrics = self.get_segment_messages_metrics(latest_segment_id)
+        computed_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message])
+
+        if segment_messages_metrics is None:
+            self.set_segment_messages_metrics(latest_segment_id, computed_messages_metrics.to_firebase_map())
+        else:
+            updated_messages_metrics = dict()
+            for attr, value in vars(segment_messages_metrics).items():
+                updated_messages_metrics[attr] = value + getattr(computed_messages_metrics, attr)
+            self.set_segment_messages_metrics(latest_segment_id, updated_messages_metrics)
