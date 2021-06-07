@@ -461,9 +461,9 @@ class CodaV2Client:
         """
         self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
 
-    def compute_segment_coding_progress(self, segment_id, messages=None, incremental_update=False):
+    def compute_segment_messages_metrics(self, segment_id, messages=None):
         """
-        Compute and return the progress metrics for a given dataset.
+        Compute and return the messages metrics for a given dataset.
 
         This method will initialise the counts in Firestore if they do not already exist.
 
@@ -473,8 +473,6 @@ class CodaV2Client:
                          If specified, it computes progress metrics based on the provided messages
                          else it downloads messages from the requested segment. Defaults to None.
         :type messages: core_data_modules.data_models.message.Message | None
-        :param incremental_update: If specified, it enables incremental update of messages metrics.
-        :type incremental_update: bool
         :return: Messages metrics.
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
