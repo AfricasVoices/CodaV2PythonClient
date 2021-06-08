@@ -8,6 +8,8 @@ from core_data_modules.data_models import Message
 from core_data_modules.data_models import CodeScheme
 from core_data_modules.data_models import MessagesMetrics
 
+MAX_SEGMENT_SIZE = 2500
+
 log = Logger(__name__)
 
 
@@ -622,8 +624,6 @@ class CodaV2Client:
                 batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
-
-    MAX_SEGMENT_SIZE = 2500
 
     def add_message_to_dataset(self, dataset_id, message, max_segment_size=MAX_SEGMENT_SIZE):
         """
