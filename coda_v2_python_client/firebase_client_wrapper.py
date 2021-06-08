@@ -481,12 +481,12 @@ class CodaV2Client:
         if messages is None:
             messages = self.get_segment_messages(segment_id)
 
+        if len(messages) == 0:
+            return MessagesMetrics(0,0,0,0)
+
         messages_with_labels = 0
         wrong_scheme_messages = 0
         not_coded_messages = 0
-
-        if len(messages) == 0:
-            return MessagesMetrics(len(messages), messages_with_labels, wrong_scheme_messages, not_coded_messages)
 
         code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(segment_id)}
 
