@@ -638,7 +638,6 @@ class CodaV2Client:
         """
         latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
 
-        # Note: We need to read the latest segment so we know how big it is, but there's no need to check previous segments.
         segment_messages_metrics = self.get_segment_messages_metrics(latest_segment_id)
         if segment_messages_metrics is None:
             segment_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id)
