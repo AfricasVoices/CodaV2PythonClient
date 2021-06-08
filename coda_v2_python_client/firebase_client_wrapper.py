@@ -653,10 +653,8 @@ class CodaV2Client:
         message = message.copy()
         message.last_updated = firestore.firestore.SERVER_TIMESTAMP
 
-        message_ref = self.get_message_ref(latest_segment_id, message.message_id)
-        message_snapshot = message_ref.get()
-
-        assert not message_snapshot.exists, f"message with id {message.message_id} already exists."
+        message_exists = bool(self.get_message(dataset_id, message.message_id))
+        assert not message_exists, f"message with id {message.message_id} already exists."
         batch.set(message_ref, message.to_firebase_map())
         batch.commit()
 
