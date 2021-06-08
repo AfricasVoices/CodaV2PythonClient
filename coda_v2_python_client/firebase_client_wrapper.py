@@ -189,10 +189,10 @@ class CodaV2Client:
         :return: A message from a segment.
         :rtype: core_data_modules.data_models.message.Message | None
         """
-        raw_message = self.get_message_ref(segment_id, message_id).get().to_dict()
-        if raw_message is None:
-            return None
-        return Message.from_firebase_map(raw_message)
+        message_snapshot = self.get_message_ref(segment_id, message_id).get()
+        if message_snapshot.exists:
+            return Message.from_firebase_map(message_snapshot.to_dict())
+        return None
 
     def get_segment_messages(self, segment_id, last_updated_after=None, last_updated_before=None):
         """
