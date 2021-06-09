@@ -658,10 +658,11 @@ class CodaV2Client:
 
         assert not message_snapshot.exists, f"message with id {message.message_id} already exists."
         batch.set(message_ref, message.to_firebase_map())
-        batch.commit()
 
         added_message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message])
         updated_messages_metrics = dict()
         for attr, value in segment_messages_metrics.to_firebase_map().items():
             updated_messages_metrics[attr] = value + getattr(added_message_metrics, attr)
-        self.set_segment_messages_metrics(latest_segment_id, MessagesMetrics(**updated_messages_metrics))
+        batch.set(self.get_segment_messages_metrics_ref(latest_segment_id), updated_messages_metrics)
+        
+        batch.commit()
