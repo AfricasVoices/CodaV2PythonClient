@@ -482,7 +482,7 @@ class CodaV2Client:
             messages = self.get_segment_messages(segment_id)
 
         if len(messages) == 0:
-            return MessagesMetrics(0,0,0,0)
+            return MessagesMetrics(0, 0, 0, 0)
 
         messages_with_labels = 0
         wrong_scheme_messages = 0
