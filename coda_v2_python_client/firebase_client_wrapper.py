@@ -653,8 +653,6 @@ class CodaV2Client:
             latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
             segment_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id)
 
-        batch = self._client.batch()
-
         message = message.copy()
         message.last_updated = firestore.firestore.SERVER_TIMESTAMP
 
