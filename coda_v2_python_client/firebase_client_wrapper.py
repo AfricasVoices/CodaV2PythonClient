@@ -531,8 +531,6 @@ class CodaV2Client:
 
         :param dataset_id: Id of the dataset to compute coding progress.
         :type dataset_id: str
-        :return: Messages metrics.
-        :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
         segment_count = self.get_segment_count(dataset_id)
         if segment_count is None or segment_count == 1:
