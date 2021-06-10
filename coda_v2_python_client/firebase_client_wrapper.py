@@ -525,7 +525,7 @@ class CodaV2Client:
 
         return MessagesMetrics(len(messages), messages_with_labels, wrong_scheme_messages, not_coded_messages)
 
-    def compute_messages_metrics(self, dataset_id):
+    def compute_and_update_messages_metrics(self, dataset_id):
         """
         Computes messages metrics of the given dataset.
 
