@@ -658,7 +658,8 @@ class CodaV2Client:
                 message = Message.from_firebase_map(msg_snapshot.to_dict())
                 if message.sequence_number > highest_seq_no:
                     highest_seq_no = message.sequence_number
-            return highest_seq_no + 1
+
+        return highest_seq_no + 1
 
     def add_message_to_dataset(self, dataset_id, message, max_segment_size=MAX_SEGMENT_SIZE):
         """
