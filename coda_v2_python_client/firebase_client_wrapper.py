@@ -632,6 +632,7 @@ class CodaV2Client:
 
     def get_sequence_number(self, dataset_id, transaction=None):
         segment_count = self.get_segment_count(dataset_id)
+        # TODO: update get_segment_count function to return 1 if the segment count doc is None
         if segment_count is None:
             segment_count = 1
 
@@ -648,7 +649,6 @@ class CodaV2Client:
                 message = Message.from_firebase_map(msg_snapshot.to_dict())
                 if message.sequence_number > highest_seq_no:
                     highest_seq_no = message.sequence_number
-            print(highest_seq_no + 1)
             return highest_seq_no + 1
 
 
