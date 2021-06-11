@@ -651,8 +651,7 @@ class CodaV2Client:
             message_snapshots = messages_ref.order_by("SequenceNumber", direction=direction).limit(1).get()
 
             if len(message_snapshots) == 0:
-                log.debug("Starting a new sequence")
-                return highest_seq_no + 1
+                continue
 
             for msg_snapshot in message_snapshots:
                 message = Message.from_firebase_map(msg_snapshot.to_dict())
