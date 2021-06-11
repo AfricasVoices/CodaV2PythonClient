@@ -46,6 +46,12 @@ class CodaV2Client:
         app = firebase_admin.initialize_app(cred, name=app_name)
         return cls(firestore.client(app))
 
+    def transaction(self):
+        return self._client.transaction()
+
+    def batch(self):
+        return self._client.batch()
+
     def get_dataset_ids(self):
         """
         Gets all the available dataset ids in Coda (For each segmented dataset, returns only the primary dataset id).
@@ -405,7 +411,7 @@ class CodaV2Client:
         """
         scheme_id = code_scheme.scheme_id
         segment_count = self.get_segment_count(dataset_id)
-        batch = self._client.batch()
+        batch = self.batch()
         if segment_count is None or segment_count == 1:
             batch.set(self.get_segment_code_scheme_ref(dataset_id, scheme_id), code_scheme.to_firebase_map())
         else:
@@ -617,7 +623,7 @@ class CodaV2Client:
         :type user_ids: list
         """
         segment_count = self.get_segment_count(dataset_id)
-        batch = self._client.batch()
+        batch = self.batch()
         if segment_count is None or segment_count == 1:
             batch.set(self.get_segment_ref(dataset_id), {"users": user_ids})
         else:
