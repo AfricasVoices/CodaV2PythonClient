@@ -662,8 +662,9 @@ class CodaV2Client:
         :param max_segment_size: the maximum size for a segment, defaults to 2500
         :type max_segment_size: int, optional
         """
-        message_exists = self.get_message(dataset_id, message.message_id) is not None
-        assert not message_exists, f"message with id {message.message_id} already exists."
+        message_id = message.message_id
+        message_exists = self.get_message(dataset_id, message_id) is not None
+        assert not message_exists, f"message with id {message_id} already exists."
 
         latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
 
