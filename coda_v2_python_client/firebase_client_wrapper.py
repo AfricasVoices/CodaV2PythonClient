@@ -630,8 +630,8 @@ class CodaV2Client:
     def transaction(self):
         return self._client.transaction()
 
-    def get_sequence_number(self, dataset_id, transaction=None):
-        segment_count = self.get_segment_count(dataset_id)
+    def get_sequence_number(self, transaction, dataset_id):
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
         # TODO: update get_segment_count function to return 1 if the segment count doc is None
         if segment_count is None:
             segment_count = 1
@@ -684,7 +684,7 @@ class CodaV2Client:
         @firestore.transactional
         def add_in_transaction(transaction):
             # Get sequence number for message
-            message.sequence_number = self.get_sequence_number(dataset_id, transaction=transaction)
+            message.sequence_number = self.get_sequence_number(transaction, dataset_id)
 
             # Set the message
             transaction.set(
