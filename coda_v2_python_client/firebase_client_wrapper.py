@@ -627,7 +627,7 @@ class CodaV2Client:
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
-    def get_sequence_number(self, dataset_id):
+    def get_next_available_sequence_number(self, dataset_id):
         """
         Gets the sequence number of message being added to the given dataset.
         :param transaction: Transaction to run this get in.
