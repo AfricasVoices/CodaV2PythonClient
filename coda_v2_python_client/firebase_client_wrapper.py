@@ -525,22 +525,22 @@ class CodaV2Client:
 
         return MessagesMetrics(len(messages), messages_with_labels, wrong_scheme_messages, not_coded_messages)
 
-    def compute_messages_metrics(self, dataset_id):
+    def compute_and_update_messages_metrics(self, dataset_id):
         """
         Computes messages metrics of the given dataset.
 
         :param dataset_id: Id of the dataset to compute coding progress.
         :type dataset_id: str
-        :return: Messages metrics.
-        :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
         segment_count = self.get_segment_count(dataset_id)
         if segment_count is None or segment_count == 1:
-            return self.compute_segment_messages_metrics(dataset_id)
+            messages_metrics = self.compute_segment_messages_metrics(dataset_id)
+            self.set_segment_messages_metrics(dataset_id, messages_metrics)
         else:
             for segment_index in range(1, segment_count + 1):
                 segment_id = self.id_for_segment(dataset_id, segment_index)
-                return self.compute_segment_messages_metrics(segment_id)
+                messages_metrics = self.compute_segment_messages_metrics(segment_id)
+                self.set_segment_messages_metrics(segment_id, messages_metrics)
 
     def get_segment_ref(self, segment_id):
         """
@@ -665,5 +665,5 @@ class CodaV2Client:
         for attr, value in segment_messages_metrics.to_firebase_map().items():
             updated_messages_metrics[attr] = value + getattr(added_message_metrics, attr)
         batch.set(self.get_segment_messages_metrics_ref(latest_segment_id), updated_messages_metrics)
-        
+
         batch.commit()
