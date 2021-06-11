@@ -631,6 +631,16 @@ class CodaV2Client:
         return self._client.transaction()
 
     def get_sequence_number(self, transaction, dataset_id):
+        """
+        Gets the sequence number of message being added to the given dataset.
+
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        :return: sequence number.
+        :rtype: int
+        """
         segment_count = self.get_segment_count(dataset_id, transaction=transaction)
         # TODO: update get_segment_count function to return 1 if the segment count is None
         if segment_count is None:
