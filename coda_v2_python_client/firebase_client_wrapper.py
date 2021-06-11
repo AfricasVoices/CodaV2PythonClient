@@ -397,13 +397,13 @@ class CodaV2Client:
         """
         scheme_id = code_scheme.scheme_id
         segment_count = self.get_segment_count(dataset_id)
+
         batch = self._client.batch()
-        if segment_count is None or segment_count == 1:
-            batch.set(self.get_segment_code_scheme_ref(dataset_id, scheme_id), code_scheme.to_firebase_map())
-        else:
-            for segment_index in range(1, segment_count + 1):
-                segment_id = self.id_for_segment(dataset_id, segment_index)
-                batch.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme.to_firebase_map())
+        
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            batch.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme.to_firebase_map())
+
         batch.commit()
         log.debug(f"Wrote scheme: {scheme_id}")
 
