@@ -260,7 +260,7 @@ class CodaV2Client:
         :rtype: list of dict
         """
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
+        if segment_count == 1:
             return self.get_segment_messages(dataset_id, last_updated_after)
         else:
             # Get the messages for each segment
@@ -334,7 +334,7 @@ class CodaV2Client:
         :type dataset_id: str
         """
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
+        if segment_count == 1:
             return
 
         first_segment_schemes = []
@@ -576,7 +576,7 @@ class CodaV2Client:
         """
         # Perform a consistency check on the other segments if they exist
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
+        if segment_count == 1:
             return
 
         first_segment_users = self.get_segment(dataset_id).get("users")
