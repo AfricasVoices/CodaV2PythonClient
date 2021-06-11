@@ -638,8 +638,6 @@ class CodaV2Client:
         :rtype: int
         """
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None:
-            segment_count = 1
 
         highest_seq_no = -1
         for segment_index in range(1, segment_count + 1):
