@@ -606,12 +606,11 @@ class CodaV2Client:
         """
         segment_count = self.get_segment_count(dataset_id)
         batch = self._client.batch()
-        if segment_count is None or segment_count == 1:
-            batch.set(self.get_segment_ref(dataset_id), {"users": user_ids})
-        else:
-            for segment_index in range(1, segment_count + 1):
-                segment_id = self.id_for_segment(dataset_id, segment_index)
-                batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
+
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
+            
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
