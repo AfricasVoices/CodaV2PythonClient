@@ -627,6 +627,36 @@ class CodaV2Client:
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
+    def get_sequence_number(self, dataset_id):
+        """
+        Gets the sequence number of message being added to the given dataset.
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        :return: sequence number.
+        :rtype: int
+        """
+        segment_count = self.get_segment_count(dataset_id)
+        # TODO: update get_segment_count function to return 1 if the segment count is None
+        if segment_count is None:
+            segment_count = 1
+
+        highest_seq_no = -1
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            messages_ref = self._client.collection(f"datasets/{segment_id}/messages")
+            message_snapshots = messages_ref.order_by("SequenceNumber", direction=firestore.Query.DESCENDING).limit(1).get()
+            if len(message_snapshots) == 0:
+                log.debug("Starting a new sequence")
+                return highest_seq_no + 1
+
+            for msg_snapshot in message_snapshots:
+                message = Message.from_firebase_map(msg_snapshot.to_dict())
+                if message.sequence_number > highest_seq_no:
+                    highest_seq_no = message.sequence_number
+            return highest_seq_no + 1
+
     def add_message_to_dataset(self, dataset_id, message, max_segment_size=MAX_SEGMENT_SIZE):
         """
         Adds message to a given dataset.
