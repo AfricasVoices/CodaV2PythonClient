@@ -654,10 +654,10 @@ class CodaV2Client:
             if len(message_snapshots) == 0:
                 continue
 
-            for msg_snapshot in message_snapshots:
-                message = Message.from_firebase_map(msg_snapshot.to_dict())
-                if message.sequence_number > highest_seq_no:
-                    highest_seq_no = message.sequence_number
+            [msg_snapshot] = message_snapshots
+            message = Message.from_firebase_map(msg_snapshot.to_dict())
+            if message.sequence_number > highest_seq_no:
+                highest_seq_no = message.sequence_number
 
         return highest_seq_no + 1
 
