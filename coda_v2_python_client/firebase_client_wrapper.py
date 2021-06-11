@@ -681,12 +681,26 @@ class CodaV2Client:
         message = message.copy()
         message.last_updated = firestore.firestore.SERVER_TIMESTAMP
 
-        batch.set(message_ref, message.to_firebase_map())
+        @firestore.transactional
+        def add_in_transaction(transaction):
+            # Get sequence number for message
+            message.sequence_number = self.get_sequence_number(dataset_id, transaction=transaction)
 
-        added_message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message])
-        updated_messages_metrics = dict()
-        for attr, value in segment_messages_metrics.to_firebase_map().items():
-            updated_messages_metrics[attr] = value + getattr(added_message_metrics, attr)
-        batch.set(self.get_segment_messages_metrics_ref(latest_segment_id), updated_messages_metrics)
-        
-        batch.commit()
+            # Set the message
+            transaction.set(
+                self.get_message_ref(dataset_id, message_id),
+                message.to_firebase_map()
+            )
+
+            added_message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message])
+            updated_messages_metrics = dict()
+            for attr, value in segment_messages_metrics.to_firebase_map().items():
+                updated_messages_metrics[attr] = value + getattr(added_message_metrics, attr)
+
+            # Set the messages metrics
+            transaction.set(
+                self.get_segment_messages_metrics_ref(latest_segment_id),
+                updated_messages_metrics
+            )
+
+        add_in_transaction(self.transaction())
