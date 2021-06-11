@@ -95,7 +95,7 @@ class CodaV2Client:
 
     def get_segmented_dataset_ids(self):
         """
-        Gets segmented dataset ids 
+        Gets segmented dataset ids
 
         :return: Ids of all datasets that are segmented
         :rtype: list of str
@@ -166,7 +166,7 @@ class CodaV2Client:
         assert False, "Server segment count did not update to the newest count fast enough"
 
     def get_message_ref(self, segment_id, message_id):
-        """ 
+        """
         Gets Firestore database reference to a message.
 
         :param segment_id: Id of a segment
@@ -417,7 +417,7 @@ class CodaV2Client:
 
     def add_and_update_code_schemes(self, dataset_id, code_schemes):
         """
-        Adds or updates code schemes for a given dataset. 
+        Adds or updates code schemes for a given dataset.
 
         :param dataset_id: Id of the dataset to add or update the code schemes for.
         :type dataset_id: str
