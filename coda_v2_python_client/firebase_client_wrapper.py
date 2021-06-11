@@ -630,6 +630,28 @@ class CodaV2Client:
     def transaction(self):
         return self._client.transaction()
 
+    def get_sequence_number(self, dataset_id, transaction=None):
+        segment_count = self.get_segment_count(dataset_id)
+        if segment_count is None:
+            segment_count = 1
+
+        highest_seq_no = -1
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            messages_ref = self._client.collection(f"datasets/{segment_id}/messages")
+            message_snapshots = messages_ref.order_by("SequenceNumber").limit(1).get(transaction=transaction)
+            if len(message_snapshots) == 0:
+                log.debug("Starting a new sequence")
+                return highest_seq_no + 1
+
+            for msg_snapshot in message_snapshots:
+                message = Message.from_firebase_map(msg_snapshot.to_dict())
+                if message.sequence_number > highest_seq_no:
+                    highest_seq_no = message.sequence_number
+            print(highest_seq_no + 1)
+            return highest_seq_no + 1
+
+
     def add_message_to_dataset(self, dataset_id, message, max_segment_size=MAX_SEGMENT_SIZE):
         """
         Adds message to a given dataset.
