@@ -638,7 +638,6 @@ class CodaV2Client:
         :rtype: int
         """
         segment_count = self.get_segment_count(dataset_id)
-        # TODO: update get_segment_count function to return 1 if the segment count is None
         if segment_count is None:
             segment_count = 1
 
