@@ -632,7 +632,7 @@ class CodaV2Client:
 
     def get_sequence_number(self, transaction, dataset_id):
         segment_count = self.get_segment_count(dataset_id, transaction=transaction)
-        # TODO: update get_segment_count function to return 1 if the segment count doc is None
+        # TODO: update get_segment_count function to return 1 if the segment count is None
         if segment_count is None:
             segment_count = 1
 
