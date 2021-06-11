@@ -651,7 +651,6 @@ class CodaV2Client:
                     highest_seq_no = message.sequence_number
             return highest_seq_no + 1
 
-
     def add_message_to_dataset(self, dataset_id, message, max_segment_size=MAX_SEGMENT_SIZE):
         """
         Adds message to a given dataset.
