@@ -525,14 +525,10 @@ class CodaV2Client:
         :type dataset_id: str
         """
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
-            messages_metrics = self.compute_segment_messages_metrics(dataset_id)
-            self.set_segment_messages_metrics(dataset_id, messages_metrics)
-        else:
-            for segment_index in range(1, segment_count + 1):
-                segment_id = self.id_for_segment(dataset_id, segment_index)
-                messages_metrics = self.compute_segment_messages_metrics(segment_id)
-                self.set_segment_messages_metrics(segment_id, messages_metrics)
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            messages_metrics = self.compute_segment_messages_metrics(segment_id)
+            self.set_segment_messages_metrics(segment_id, messages_metrics)
 
     def get_segment_ref(self, segment_id):
         """
