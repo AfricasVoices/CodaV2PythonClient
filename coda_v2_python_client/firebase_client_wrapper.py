@@ -645,6 +645,7 @@ class CodaV2Client:
         highest_seq_no = -1
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
+            # TODO: add a function that returns messages reference
             messages_ref = self._client.collection(f"datasets/{segment_id}/messages")
 
             direction = firestore.Query.DESCENDING
