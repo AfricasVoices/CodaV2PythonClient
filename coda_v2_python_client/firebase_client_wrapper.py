@@ -235,9 +235,6 @@ class CodaV2Client:
         :rtype: core_data_modules.data_models.message.Message | None
         """
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
-            return self.get_segment_message(dataset_id, message_id)
-
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
             message = self.get_segment_message(segment_id, message_id)
