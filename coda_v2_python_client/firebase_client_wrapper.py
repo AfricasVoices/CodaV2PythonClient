@@ -224,7 +224,7 @@ class CodaV2Client:
         :return: Messages in this segment, filtered by 'LastUpdated' timestamp if requested.
         :rtype: list of core_data_modules.data_models.message.Message
         """
-        messages_ref = self._client.collection(f"datasets/{segment_id}/messages")
+        messages_ref = self.get_messages_ref(self, segment_id)
         if last_updated_after is not None:
             messages_ref = messages_ref.where("LastUpdated", ">", last_updated_after)
         if last_updated_before is not None:
@@ -656,8 +656,7 @@ class CodaV2Client:
         highest_seq_no = -1
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
-            # TODO: add a function that returns messages reference
-            messages_ref = self._client.collection(f"datasets/{segment_id}/messages")
+            messages_ref = get_messages_ref(self, segment_id)
 
             direction = firestore.Query.DESCENDING
             message_snapshots = messages_ref.order_by("SequenceNumber", direction=direction).limit(1).get()
