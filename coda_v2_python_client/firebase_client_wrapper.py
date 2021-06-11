@@ -138,10 +138,10 @@ class CodaV2Client:
         :type dataset_id: str
         """
         segment_count = self.get_segment_count(dataset_id)
-
         current_segment_id = self.id_for_segment(dataset_id, segment_count)
-        next_segment_id = f"{dataset_id}_{segment_count + 1}"
+
         next_segment_count = segment_count + 1
+        next_segment_id = self.id_for_segment(dataset_id, next_segment_count)
 
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
