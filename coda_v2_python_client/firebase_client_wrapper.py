@@ -139,14 +139,9 @@ class CodaV2Client:
         """
         segment_count = self.get_segment_count(dataset_id)
 
-        if segment_count is None:
-            current_segment_id = dataset_id
-            next_segment_id = f"{dataset_id}_2"
-            next_segment_count = 2
-        else:
-            current_segment_id = f"{dataset_id}_{segment_count}"
-            next_segment_id = f"{dataset_id}_{segment_count + 1}"
-            next_segment_count = segment_count + 1
+        current_segment_id = self.id_for_segment(dataset_id, segment_count)
+        next_segment_id = f"{dataset_id}_{segment_count + 1}"
+        next_segment_count = segment_count + 1
 
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
