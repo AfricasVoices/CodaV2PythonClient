@@ -575,7 +575,7 @@ class CodaV2Client:
         """
         return self.get_segment(segment_id).get("users")
 
-    def ensure_user_ids_consistent(self, dataset_id):
+    def ensure_user_ids_consistent(self, dataset_id, transaction=None):
         """
         Ensures user ids are consistent across all segments of the dataset.
 
@@ -587,7 +587,7 @@ class CodaV2Client:
         if segment_count == 1:
             return
 
-        first_segment_users = self.get_segment(dataset_id).get("users")
+        first_segment_users = self.get_segment(dataset_id).get("users", transaction=transaction)
         for segment_index in range(2, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
             assert set(self.get_segment_user_ids(segment_id)) == set(first_segment_users), \
