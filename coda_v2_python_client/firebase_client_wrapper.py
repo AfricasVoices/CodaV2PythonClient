@@ -441,7 +441,7 @@ class CodaV2Client:
         """
         return self._client.document(f"datasets/{segment_id}/metrics/messages")
 
-    def get_segment_messages_metrics(self, segment_id):
+    def get_segment_messages_metrics(self, segment_id, transaction=None):
         """
         Gets messages metrics for a given segment
 
@@ -450,7 +450,7 @@ class CodaV2Client:
         :return: Messages metrics for a given segment
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
-        messages_metrics = self.get_segment_messages_metrics_ref(segment_id).get().to_dict()
+        messages_metrics = self.get_segment_messages_metrics_ref(segment_id).get(transaction=transaction).to_dict()
         if messages_metrics is None:
             return None
         return MessagesMetrics.from_firebase_map(messages_metrics)
