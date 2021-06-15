@@ -107,16 +107,16 @@ class CodaV2Client:
 
     def get_segment_count(self, dataset_id):
         """
-        Gets number of segments for a given dataset. If the dataset is not segmented, returns None
+        Gets number of segments for a given dataset. If the dataset is not segmented, returns 1
 
         :param dataset_id: Id of a dataset
         :type dataset_id: str
         :return: Number of segments for a given dataset
-        :rtype: int | None
+        :rtype: int
         """
         segment_count_doc = self._client.document(f"segment_counts/{dataset_id}").get().to_dict()
         if segment_count_doc is None:
-            return None
+            return 1
         return segment_count_doc["segment_count"]
 
     def set_segment_count(self, dataset_id, segment_count):
@@ -138,15 +138,10 @@ class CodaV2Client:
         :type dataset_id: str
         """
         segment_count = self.get_segment_count(dataset_id)
+        current_segment_id = self.id_for_segment(dataset_id, segment_count)
 
-        if segment_count is None:
-            current_segment_id = dataset_id
-            next_segment_id = f"{dataset_id}_2"
-            next_segment_count = 2
-        else:
-            current_segment_id = f"{dataset_id}_{segment_count}"
-            next_segment_id = f"{dataset_id}_{segment_count + 1}"
-            next_segment_count = segment_count + 1
+        next_segment_count = segment_count + 1
+        next_segment_id = self.id_for_segment(dataset_id, next_segment_count)
 
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
@@ -251,9 +246,6 @@ class CodaV2Client:
         :rtype: core_data_modules.data_models.message.Message | None
         """
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
-            return self.get_segment_message(dataset_id, message_id)
-
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
             message = self.get_segment_message(segment_id, message_id)
@@ -279,7 +271,7 @@ class CodaV2Client:
         :rtype: list of dict
         """
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
+        if segment_count == 1:
             return self.get_segment_messages(dataset_id, last_updated_after)
         else:
             # Get the messages for each segment
@@ -353,7 +345,7 @@ class CodaV2Client:
         :type dataset_id: str
         """
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
+        if segment_count == 1:
             return
 
         first_segment_schemes = []
@@ -416,13 +408,13 @@ class CodaV2Client:
         """
         scheme_id = code_scheme.scheme_id
         segment_count = self.get_segment_count(dataset_id)
+
         batch = self._client.batch()
-        if segment_count is None or segment_count == 1:
-            batch.set(self.get_segment_code_scheme_ref(dataset_id, scheme_id), code_scheme.to_firebase_map())
-        else:
-            for segment_index in range(1, segment_count + 1):
-                segment_id = self.id_for_segment(dataset_id, segment_index)
-                batch.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme.to_firebase_map())
+        
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            batch.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme.to_firebase_map())
+
         batch.commit()
         log.debug(f"Wrote scheme: {scheme_id}")
 
@@ -544,14 +536,10 @@ class CodaV2Client:
         :type dataset_id: str
         """
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
-            messages_metrics = self.compute_segment_messages_metrics(dataset_id)
-            self.set_segment_messages_metrics(dataset_id, messages_metrics)
-        else:
-            for segment_index in range(1, segment_count + 1):
-                segment_id = self.id_for_segment(dataset_id, segment_index)
-                messages_metrics = self.compute_segment_messages_metrics(segment_id)
-                self.set_segment_messages_metrics(segment_id, messages_metrics)
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            messages_metrics = self.compute_segment_messages_metrics(segment_id)
+            self.set_segment_messages_metrics(segment_id, messages_metrics)
 
     def get_segment_ref(self, segment_id):
         """
@@ -595,7 +583,7 @@ class CodaV2Client:
         """
         # Perform a consistency check on the other segments if they exist
         segment_count = self.get_segment_count(dataset_id)
-        if segment_count is None or segment_count == 1:
+        if segment_count == 1:
             return
 
         first_segment_users = self.get_segment(dataset_id).get("users")
@@ -629,12 +617,11 @@ class CodaV2Client:
         """
         segment_count = self.get_segment_count(dataset_id)
         batch = self._client.batch()
-        if segment_count is None or segment_count == 1:
-            batch.set(self.get_segment_ref(dataset_id), {"users": user_ids})
-        else:
-            for segment_index in range(1, segment_count + 1):
-                segment_id = self.id_for_segment(dataset_id, segment_index)
-                batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
+
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
+            
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
@@ -649,9 +636,6 @@ class CodaV2Client:
         :rtype: int
         """
         segment_count = self.get_segment_count(dataset_id)
-        # TODO: update get_segment_count function to return 1 if the segment count is None
-        if segment_count is None:
-            segment_count = 1
 
         highest_seq_no = -1
         for segment_index in range(1, segment_count + 1):
