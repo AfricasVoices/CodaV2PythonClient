@@ -626,7 +626,7 @@ class CodaV2Client:
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
-    def get_next_available_sequence_number(self, dataset_id):
+    def get_next_available_sequence_number(self, dataset_id, transaction=None):
         """
         Gets the sequence number of message being added to the given dataset.
         :param transaction: Transaction to run this get in.
@@ -636,7 +636,7 @@ class CodaV2Client:
         :return: sequence number.
         :rtype: int
         """
-        segment_count = self.get_segment_count(dataset_id)
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
 
         highest_seq_no = -1
         for segment_index in range(1, segment_count + 1):
@@ -644,7 +644,8 @@ class CodaV2Client:
             messages_ref = get_messages_ref(self, segment_id)
 
             direction = firestore.Query.DESCENDING
-            message_snapshots = messages_ref.order_by("SequenceNumber", direction=direction).limit(1).get()
+            message_snapshots = messages_ref.order_by(
+                "SequenceNumber", direction=direction).limit(1).get(transaction=transaction)
 
             if len(message_snapshots) == 0:
                 continue
