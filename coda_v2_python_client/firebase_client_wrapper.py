@@ -46,6 +46,9 @@ class CodaV2Client:
         app = firebase_admin.initialize_app(cred, name=app_name)
         return cls(firestore.client(app))
 
+    def transaction(self):
+        return self._client.transaction()
+
     def get_dataset_ids(self):
         """
         Gets all the available dataset ids in Coda (For each segmented dataset, returns only the primary dataset id).
