@@ -95,7 +95,7 @@ class CodaV2Client:
 
     def get_segmented_dataset_ids(self):
         """
-        Gets segmented dataset ids 
+        Gets segmented dataset ids
 
         :return: Ids of all datasets that are segmented
         :rtype: list of str
@@ -161,7 +161,7 @@ class CodaV2Client:
         assert False, "Server segment count did not update to the newest count fast enough"
 
     def get_message_ref(self, segment_id, message_id):
-        """ 
+        """
         Gets Firestore database reference to a message.
 
         :param segment_id: Id of a segment
@@ -174,7 +174,7 @@ class CodaV2Client:
         return self._client.document(f"datasets/{segment_id}/messages/{message_id}")
 
     def get_messages_ref(self, segment_id):
-        """ 
+        """
         Gets Firestore database reference to messages.
 
         :param segment_id: Id of a segment
@@ -410,7 +410,7 @@ class CodaV2Client:
         segment_count = self.get_segment_count(dataset_id)
 
         batch = self._client.batch()
-        
+
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
             batch.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme.to_firebase_map())
@@ -420,7 +420,7 @@ class CodaV2Client:
 
     def add_and_update_code_schemes(self, dataset_id, code_schemes):
         """
-        Adds or updates code schemes for a given dataset. 
+        Adds or updates code schemes for a given dataset.
 
         :param dataset_id: Id of the dataset to add or update the code schemes for.
         :type dataset_id: str
@@ -622,7 +622,7 @@ class CodaV2Client:
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
             batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
-            
+
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
