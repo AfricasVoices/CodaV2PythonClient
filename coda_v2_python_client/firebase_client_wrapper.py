@@ -466,7 +466,7 @@ class CodaV2Client:
         """
         self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
 
-    def compute_segment_messages_metrics(self, segment_id, messages=None):
+    def compute_segment_messages_metrics(self, segment_id, messages=None, transaction=None):
         """
         Compute and return the messages metrics for a given dataset.
 
@@ -482,7 +482,7 @@ class CodaV2Client:
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
         if messages is None:
-            messages = self.get_segment_messages(segment_id)
+            messages = self.get_segment_messages(segment_id, transaction=transaction)
 
         if len(messages) == 0:
             return MessagesMetrics(0, 0, 0, 0)
@@ -491,7 +491,8 @@ class CodaV2Client:
         wrong_scheme_messages = 0
         not_coded_messages = 0
 
-        code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(segment_id)}
+        code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(
+            segment_id, transaction=transaction)}
 
         for message in messages:
             # Test if the message has a label and if any of the latest labels are either WS or NC
