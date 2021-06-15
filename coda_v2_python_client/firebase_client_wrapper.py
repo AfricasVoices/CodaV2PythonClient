@@ -95,7 +95,7 @@ class CodaV2Client:
 
     def get_segmented_dataset_ids(self):
         """
-        Gets segmented dataset ids 
+        Gets segmented dataset ids
 
         :return: Ids of all datasets that are segmented
         :rtype: list of str
@@ -105,7 +105,7 @@ class CodaV2Client:
             segmented_dataset_ids.append(doc.id)
         return segmented_dataset_ids
 
-    def get_segment_count(self, dataset_id):
+    def get_segment_count(self, dataset_id, transaction=None):
         """
         Gets number of segments for a given dataset. If the dataset is not segmented, returns 1
 
@@ -114,7 +114,7 @@ class CodaV2Client:
         :return: Number of segments for a given dataset
         :rtype: int
         """
-        segment_count_doc = self._client.document(f"segment_counts/{dataset_id}").get().to_dict()
+        segment_count_doc = self._client.document(f"segment_counts/{dataset_id}").get(transaction=transaction).to_dict()
         if segment_count_doc is None:
             return 1
         return segment_count_doc["segment_count"]
@@ -130,14 +130,14 @@ class CodaV2Client:
         """
         self._client.document(f"segment_counts/{dataset_id}").set({"segment_count": segment_count})
 
-    def create_next_segment(self, dataset_id):
+    def create_next_segment(self, dataset_id, transaction=None):
         """
         Creates a new segment for a given dataset
 
         :param dataset_id: Id of the dataset to create segment for.
         :type dataset_id: str
         """
-        segment_count = self.get_segment_count(dataset_id)
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
         current_segment_id = self.id_for_segment(dataset_id, segment_count)
 
         next_segment_count = segment_count + 1
@@ -145,10 +145,10 @@ class CodaV2Client:
 
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
-        code_schemes = self.get_all_code_schemes(current_segment_id)
+        code_schemes = self.get_all_code_schemes(current_segment_id, transaction=transaction)
         self.add_and_update_code_schemes(next_segment_id, code_schemes)
 
-        users = self.get_user_ids(current_segment_id)
+        users = self.get_user_ids(current_segment_id, transaction=transaction)
         self.set_user_ids(next_segment_id, users)
 
         self.set_segment_count(dataset_id, next_segment_count)
@@ -161,7 +161,7 @@ class CodaV2Client:
         assert False, "Server segment count did not update to the newest count fast enough"
 
     def get_message_ref(self, segment_id, message_id):
-        """ 
+        """
         Gets Firestore database reference to a message.
 
         :param segment_id: Id of a segment
@@ -174,7 +174,7 @@ class CodaV2Client:
         return self._client.document(f"datasets/{segment_id}/messages/{message_id}")
 
     def get_messages_ref(self, segment_id):
-        """ 
+        """
         Gets Firestore database reference to messages.
 
         :param segment_id: Id of a segment
@@ -184,7 +184,7 @@ class CodaV2Client:
         """
         return self._client.document(f"datasets/{segment_id}/messages")
 
-    def get_segment_message(self, segment_id, message_id):
+    def get_segment_message(self, segment_id, message_id, transaction=None):
         """
         Gets a message from a segment by id. If the message is not found, returns None.
 
@@ -195,12 +195,12 @@ class CodaV2Client:
         :return: A message from a segment.
         :rtype: core_data_modules.data_models.message.Message | None
         """
-        message_snapshot = self.get_message_ref(segment_id, message_id).get()
+        message_snapshot = self.get_message_ref(segment_id, message_id).get(transaction=transaction)
         if message_snapshot.exists:
             return Message.from_firebase_map(message_snapshot.to_dict())
         return None
 
-    def get_segment_messages(self, segment_id, last_updated_after=None, last_updated_before=None):
+    def get_segment_messages(self, segment_id, last_updated_after=None, last_updated_before=None, transaction=None):
         """
         Downloads messages from the requested segment, optionally filtering by when the messages were last updated.
 
@@ -224,7 +224,7 @@ class CodaV2Client:
             messages_ref = messages_ref.where("LastUpdated", ">", last_updated_after)
         if last_updated_before is not None:
             messages_ref = messages_ref.where("LastUpdated", "<=", last_updated_before)
-        raw_messages = [message.to_dict() for message in messages_ref.get()]
+        raw_messages = [message.to_dict() for message in messages_ref.get(transaction=transaction)]
 
         messages = []
         for message in raw_messages:
@@ -234,7 +234,7 @@ class CodaV2Client:
 
         return [Message.from_firebase_map(message) for message in messages]
 
-    def get_message(self, dataset_id, message_id):
+    def get_message(self, dataset_id, message_id, transaction=None):
         """
         Gets a message from a dataset by id. If the message is not found, returns None.
 
@@ -248,7 +248,7 @@ class CodaV2Client:
         segment_count = self.get_segment_count(dataset_id)
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
-            message = self.get_segment_message(segment_id, message_id)
+            message = self.get_segment_message(segment_id, message_id, transaction=transaction)
             if message is not None:
                 log.debug(f"Message found in segment {segment_id}")
                 return message
@@ -337,14 +337,14 @@ class CodaV2Client:
         """
         return self._client.collection(f"datasets/{segment_id}/code_schemes")
 
-    def ensure_code_schemes_consistent(self, dataset_id):
+    def ensure_code_schemes_consistent(self, dataset_id, transaction=None):
         """
         Checks that the code schemes are the same in all segments
 
         :param dataset_id: Id of a dataset.
         :type dataset_id: str
         """
-        segment_count = self.get_segment_count(dataset_id)
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
         if segment_count == 1:
             return
 
@@ -368,7 +368,7 @@ class CodaV2Client:
             for x, y in zip(first_segment_schemes, current_segment_schemes):
                 assert x == y, f"Segment {segment_id} has different schemes to the first segment {dataset_id}"
 
-    def get_all_code_schemes(self, dataset_id):
+    def get_all_code_schemes(self, dataset_id, transaction=None):
         """
         Gets all code schemes for a given dataset
 
@@ -377,10 +377,10 @@ class CodaV2Client:
         :return: Code schemes in this dataset
         :rtype: core_data_modules.data_models.code_scheme.CodeScheme
         """
-        self.ensure_code_schemes_consistent(dataset_id)
+        self.ensure_code_schemes_consistent(dataset_id, transaction=transaction)
 
         code_schemes = []
-        for doc in self.get_code_schemes_ref(dataset_id).get():
+        for doc in self.get_code_schemes_ref(dataset_id).get(transaction=transaction):
             code_schemes.append(CodeScheme.from_firebase_map(doc.to_dict()))
         return code_schemes
 
@@ -410,7 +410,7 @@ class CodaV2Client:
         segment_count = self.get_segment_count(dataset_id)
 
         batch = self._client.batch()
-        
+
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
             batch.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme.to_firebase_map())
@@ -420,7 +420,7 @@ class CodaV2Client:
 
     def add_and_update_code_schemes(self, dataset_id, code_schemes):
         """
-        Adds or updates code schemes for a given dataset. 
+        Adds or updates code schemes for a given dataset.
 
         :param dataset_id: Id of the dataset to add or update the code schemes for.
         :type dataset_id: str
@@ -441,7 +441,7 @@ class CodaV2Client:
         """
         return self._client.document(f"datasets/{segment_id}/metrics/messages")
 
-    def get_segment_messages_metrics(self, segment_id):
+    def get_segment_messages_metrics(self, segment_id, transaction=None):
         """
         Gets messages metrics for a given segment
 
@@ -450,7 +450,7 @@ class CodaV2Client:
         :return: Messages metrics for a given segment
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
-        messages_metrics = self.get_segment_messages_metrics_ref(segment_id).get().to_dict()
+        messages_metrics = self.get_segment_messages_metrics_ref(segment_id).get(transaction=transaction).to_dict()
         if messages_metrics is None:
             return None
         return MessagesMetrics.from_firebase_map(messages_metrics)
@@ -466,7 +466,7 @@ class CodaV2Client:
         """
         self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
 
-    def compute_segment_messages_metrics(self, segment_id, messages=None):
+    def compute_segment_messages_metrics(self, segment_id, messages=None, transaction=None):
         """
         Compute and return the messages metrics for a given dataset.
 
@@ -482,7 +482,7 @@ class CodaV2Client:
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
         if messages is None:
-            messages = self.get_segment_messages(segment_id)
+            messages = self.get_segment_messages(segment_id, transaction=transaction)
 
         if len(messages) == 0:
             return MessagesMetrics(0, 0, 0, 0)
@@ -491,7 +491,8 @@ class CodaV2Client:
         wrong_scheme_messages = 0
         not_coded_messages = 0
 
-        code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(segment_id)}
+        code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(
+            segment_id, transaction=transaction)}
 
         for message in messages:
             # Test if the message has a label and if any of the latest labels are either WS or NC
@@ -574,7 +575,7 @@ class CodaV2Client:
         """
         return self.get_segment(segment_id).get("users")
 
-    def ensure_user_ids_consistent(self, dataset_id):
+    def ensure_user_ids_consistent(self, dataset_id, transaction=None):
         """
         Ensures user ids are consistent across all segments of the dataset.
 
@@ -586,13 +587,13 @@ class CodaV2Client:
         if segment_count == 1:
             return
 
-        first_segment_users = self.get_segment(dataset_id).get("users")
+        first_segment_users = self.get_segment(dataset_id).get("users", transaction=transaction)
         for segment_index in range(2, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
             assert set(self.get_segment_user_ids(segment_id)) == set(first_segment_users), \
                 f"Segment {segment_id} has different users to the first segment {dataset_id}"
 
-    def get_user_ids(self, dataset_id):
+    def get_user_ids(self, dataset_id, transaction=None):
         """
         Gets user ids for the given dataset.
 
@@ -601,9 +602,9 @@ class CodaV2Client:
         :return: list of user ids.
         :rtype: list
         """
-        self.ensure_user_ids_consistent(dataset_id)
+        self.ensure_user_ids_consistent(dataset_id, transaction=transaction)
 
-        users = self.get_segment(dataset_id).get("users")
+        users = self.get_segment(dataset_id).get("users", transaction=transaction)
         return users
 
     def set_user_ids(self, dataset_id, user_ids):
@@ -621,11 +622,11 @@ class CodaV2Client:
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
             batch.set(self.get_segment_ref(segment_id), {"users": user_ids})
-            
+
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
-    def get_next_available_sequence_number(self, dataset_id):
+    def get_next_available_sequence_number(self, dataset_id, transaction=None):
         """
         Gets the sequence number of message being added to the given dataset.
         :param transaction: Transaction to run this get in.
@@ -635,7 +636,7 @@ class CodaV2Client:
         :return: sequence number.
         :rtype: int
         """
-        segment_count = self.get_segment_count(dataset_id)
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
 
         highest_seq_no = -1
         for segment_index in range(1, segment_count + 1):
@@ -643,7 +644,8 @@ class CodaV2Client:
             messages_ref = get_messages_ref(self, segment_id)
 
             direction = firestore.Query.DESCENDING
-            message_snapshots = messages_ref.order_by("SequenceNumber", direction=direction).limit(1).get()
+            message_snapshots = messages_ref.order_by(
+                "SequenceNumber", direction=direction).limit(1).get(transaction=transaction)
 
             if len(message_snapshots) == 0:
                 continue
