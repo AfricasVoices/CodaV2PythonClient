@@ -626,6 +626,33 @@ class CodaV2Client:
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
+    def set_segment_user_ids(self, segment_id, user_ids, transaction=None):
+        """
+        Sets user ids for the given segment.
+
+        :param segment_id: Id of a segment to set user ids into.
+        :type segment_id: str
+        :param user_ids: list of user ids.
+        :type user_ids: list
+        :param transaction: Transaction to run this update in or None.
+                            If None, adds the updates to a transaction that will need to be explicitly committed.
+        :type transaction: google.cloud.firestore.Transaction | None
+        """
+        if transaction is None:
+            # If no transaction was given, run all the updates in a new batched-write transaction and flag that
+            # this transaction needs to be committed before returning from this function.
+            transaction = self._client.batch()
+            commit_before_returning = True
+        else:
+            commit_before_returning = False
+
+        transaction.set(self.get_segment_ref(segment_id), {"users": user_ids})
+
+        if commit_before_returning:
+            transaction.commit()
+            
+        log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
+
     def get_next_available_sequence_number(self, dataset_id, transaction=None):
         """
         Gets the sequence number of message being added to the given dataset.
