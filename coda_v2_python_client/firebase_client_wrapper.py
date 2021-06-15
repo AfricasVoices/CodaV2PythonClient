@@ -337,14 +337,14 @@ class CodaV2Client:
         """
         return self._client.collection(f"datasets/{segment_id}/code_schemes")
 
-    def ensure_code_schemes_consistent(self, dataset_id):
+    def ensure_code_schemes_consistent(self, dataset_id, transaction=None):
         """
         Checks that the code schemes are the same in all segments
 
         :param dataset_id: Id of a dataset.
         :type dataset_id: str
         """
-        segment_count = self.get_segment_count(dataset_id)
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
         if segment_count == 1:
             return
 
