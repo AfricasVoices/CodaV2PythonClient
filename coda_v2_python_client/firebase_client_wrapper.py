@@ -200,7 +200,7 @@ class CodaV2Client:
             return Message.from_firebase_map(message_snapshot.to_dict())
         return None
 
-    def get_segment_messages(self, segment_id, last_updated_after=None, last_updated_before=None):
+    def get_segment_messages(self, segment_id, last_updated_after=None, last_updated_before=None, transaction=None):
         """
         Downloads messages from the requested segment, optionally filtering by when the messages were last updated.
 
@@ -224,7 +224,7 @@ class CodaV2Client:
             messages_ref = messages_ref.where("LastUpdated", ">", last_updated_after)
         if last_updated_before is not None:
             messages_ref = messages_ref.where("LastUpdated", "<=", last_updated_before)
-        raw_messages = [message.to_dict() for message in messages_ref.get()]
+        raw_messages = [message.to_dict() for message in messages_ref.get(transaction=transaction)]
 
         messages = []
         for message in raw_messages:
