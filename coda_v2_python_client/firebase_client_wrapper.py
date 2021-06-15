@@ -635,7 +635,7 @@ class CodaV2Client:
         :param user_ids: list of user ids.
         :type user_ids: list
         :param transaction: Transaction to run this update in or None.
-                            If None, adds the updates to a transaction that will need to be explicitly committed.
+                            If None, adds the updates to a transaction that will then be explicitly committed.
         :type transaction: google.cloud.firestore.Transaction | None
         """
         if transaction is None:
@@ -650,7 +650,7 @@ class CodaV2Client:
 
         if commit_before_returning:
             transaction.commit()
-            
+
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
     def get_next_available_sequence_number(self, dataset_id, transaction=None):
