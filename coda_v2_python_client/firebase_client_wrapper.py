@@ -593,7 +593,7 @@ class CodaV2Client:
             assert set(self.get_segment_user_ids(segment_id)) == set(first_segment_users), \
                 f"Segment {segment_id} has different users to the first segment {dataset_id}"
 
-    def get_user_ids(self, dataset_id):
+    def get_user_ids(self, dataset_id, transaction=None):
         """
         Gets user ids for the given dataset.
 
@@ -602,9 +602,9 @@ class CodaV2Client:
         :return: list of user ids.
         :rtype: list
         """
-        self.ensure_user_ids_consistent(dataset_id)
+        self.ensure_user_ids_consistent(dataset_id, transaction=transaction)
 
-        users = self.get_segment(dataset_id).get("users")
+        users = self.get_segment(dataset_id).get("users", transaction=transaction)
         return users
 
     def set_user_ids(self, dataset_id, user_ids):
