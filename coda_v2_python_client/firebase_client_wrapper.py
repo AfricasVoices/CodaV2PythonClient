@@ -234,7 +234,7 @@ class CodaV2Client:
 
         return [Message.from_firebase_map(message) for message in messages]
 
-    def get_message(self, dataset_id, message_id):
+    def get_message(self, dataset_id, message_id, transaction=None):
         """
         Gets a message from a dataset by id. If the message is not found, returns None.
 
@@ -248,7 +248,7 @@ class CodaV2Client:
         segment_count = self.get_segment_count(dataset_id)
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
-            message = self.get_segment_message(segment_id, message_id)
+            message = self.get_segment_message(segment_id, message_id, transaction=transaction)
             if message is not None:
                 log.debug(f"Message found in segment {segment_id}")
                 return message
