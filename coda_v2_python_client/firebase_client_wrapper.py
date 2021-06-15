@@ -130,14 +130,14 @@ class CodaV2Client:
         """
         self._client.document(f"segment_counts/{dataset_id}").set({"segment_count": segment_count})
 
-    def create_next_segment(self, dataset_id):
+    def create_next_segment(self, dataset_id, transaction=None):
         """
         Creates a new segment for a given dataset
 
         :param dataset_id: Id of the dataset to create segment for.
         :type dataset_id: str
         """
-        segment_count = self.get_segment_count(dataset_id)
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
         current_segment_id = self.id_for_segment(dataset_id, segment_count)
 
         next_segment_count = segment_count + 1
@@ -145,10 +145,10 @@ class CodaV2Client:
 
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
-        code_schemes = self.get_all_code_schemes(current_segment_id)
+        code_schemes = self.get_all_code_schemes(current_segment_id, transaction=transaction)
         self.add_and_update_code_schemes(next_segment_id, code_schemes)
 
-        users = self.get_user_ids(current_segment_id)
+        users = self.get_user_ids(current_segment_id, transaction=transaction)
         self.set_user_ids(next_segment_id, users)
 
         self.set_segment_count(dataset_id, next_segment_count)
