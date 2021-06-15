@@ -368,7 +368,7 @@ class CodaV2Client:
             for x, y in zip(first_segment_schemes, current_segment_schemes):
                 assert x == y, f"Segment {segment_id} has different schemes to the first segment {dataset_id}"
 
-    def get_all_code_schemes(self, dataset_id):
+    def get_all_code_schemes(self, dataset_id, transaction=None):
         """
         Gets all code schemes for a given dataset
 
@@ -377,10 +377,10 @@ class CodaV2Client:
         :return: Code schemes in this dataset
         :rtype: core_data_modules.data_models.code_scheme.CodeScheme
         """
-        self.ensure_code_schemes_consistent(dataset_id)
+        self.ensure_code_schemes_consistent(dataset_id, transaction=transaction)
 
         code_schemes = []
-        for doc in self.get_code_schemes_ref(dataset_id).get():
+        for doc in self.get_code_schemes_ref(dataset_id).get(transaction=transaction):
             code_schemes.append(CodeScheme.from_firebase_map(doc.to_dict()))
         return code_schemes
 
