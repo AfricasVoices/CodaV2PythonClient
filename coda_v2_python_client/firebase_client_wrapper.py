@@ -119,7 +119,7 @@ class CodaV2Client:
             return 1
         return segment_count_doc["segment_count"]
 
-    def set_segment_count(self, dataset_id, segment_count):
+    def set_segment_count(self, dataset_id, segment_count, transaction=None):
         """
         Sets number of segments for a given dataset.
 
