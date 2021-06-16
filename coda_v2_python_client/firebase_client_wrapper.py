@@ -574,7 +574,7 @@ class CodaV2Client:
         """
         return self._client.document(f"datasets/{segment_id}")
 
-    def get_segment(self, segment_id):
+    def get_segment(self, segment_id, transaction=None):
         """
         Gets segment by id.
 
@@ -583,7 +583,7 @@ class CodaV2Client:
         :return: A snapshot of document data in a Firestore database.
         :rtype: google.cloud.firestore_v1.base_document.DocumentSnapshot
         """
-        return self.get_segment_ref(segment_id).get()
+        return self.get_segment_ref(segment_id).get(transaction=transaction)
 
     def get_segment_user_ids(self, segment_id):
         """
