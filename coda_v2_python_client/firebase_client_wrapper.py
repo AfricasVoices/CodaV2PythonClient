@@ -182,7 +182,7 @@ class CodaV2Client:
         :return: A reference to collection `messages` in Firestore database
         :rtype: google.cloud.firestore_v1.collection.CollectionReference
         """
-        return self._client.document(f"datasets/{segment_id}/messages")
+        return self._client.collection(f"datasets/{segment_id}/messages")
 
     def get_segment_message(self, segment_id, message_id, transaction=None):
         """
