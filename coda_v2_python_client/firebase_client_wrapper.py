@@ -430,6 +430,10 @@ class CodaV2Client:
         for code_scheme in code_schemes:
             self.set_code_scheme(dataset_id, code_scheme)
 
+    def add_and_update_segment_code_schemes(self, segment_id, code_schemes, transaction=None):
+        for code_scheme in code_schemes:
+            self.set_segment_code_scheme(segment_id, code_scheme, transaction=transaction)
+
     def get_segment_messages_metrics_ref(self, segment_id):
         """
         Gets Firestore database reference to messages metrics.
