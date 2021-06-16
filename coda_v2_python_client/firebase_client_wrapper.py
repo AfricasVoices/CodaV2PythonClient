@@ -624,9 +624,7 @@ class CodaV2Client:
         :rtype: list
         """
         self.ensure_user_ids_consistent(dataset_id, transaction=transaction)
-
-        users = self.get_segment(dataset_id).get("users", transaction=transaction)
-        return users
+        return self.get_segment(dataset_id, transaction=transaction).get("users")
 
     def set_user_ids(self, dataset_id, user_ids):
         """
