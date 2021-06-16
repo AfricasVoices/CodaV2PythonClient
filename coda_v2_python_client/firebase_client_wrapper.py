@@ -672,7 +672,7 @@ class CodaV2Client:
         if commit_before_returning:
             transaction.commit()
 
-        log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
+        log.debug(f"Wrote {len(user_ids)} users to dataset {segment_id}")
 
     def get_next_available_sequence_number(self, dataset_id, transaction=None):
         """
