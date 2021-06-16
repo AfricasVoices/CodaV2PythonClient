@@ -458,6 +458,16 @@ class CodaV2Client:
             self.set_code_scheme(dataset_id, code_scheme)
 
     def add_and_update_segment_code_schemes(self, segment_id, code_schemes, transaction=None):
+        """
+        Adds or updates code schemes for a given segment.
+
+        :param segment_id: Id of the segment to add or update the code schemes for.
+        :type segment_id: str
+        :param code_schemes: Code schemes to be added or updated.
+        :type code_schemes: list of core_data_modules.data_models.code_scheme.CodeScheme
+        :param transaction: Transaction to run this in or None.
+        :type transaction: google.cloud.firestore.Transaction | None
+        """
         for code_scheme in code_schemes:
             self.set_segment_code_scheme(segment_id, code_scheme, transaction=transaction)
 
