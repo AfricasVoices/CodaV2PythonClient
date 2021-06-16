@@ -146,19 +146,19 @@ class CodaV2Client:
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
         code_schemes = self.get_all_code_schemes(current_segment_id, transaction=transaction)
-        self.add_and_update_code_schemes(next_segment_id, code_schemes)
-
         users = self.get_user_ids(current_segment_id, transaction=transaction)
-        self.set_user_ids(next_segment_id, users)
+        
+        self.add_and_update_segment_code_schemes(next_segment_id, code_schemes, transaction=transaction)
+        self.set_segment_user_ids(next_segment_id, users, transaction=transaction)
+        self.set_segment_count(dataset_id, next_segment_count, transaction=transaction)
 
-        self.set_segment_count(dataset_id, next_segment_count)
-
-        for x in range(0, 10):
-            if self.get_segment_count(dataset_id) == next_segment_count:
-                return
-            log.debug("New segment count not yet committed, waiting 1s before retrying")
-            time.sleep(1)
-        assert False, "Server segment count did not update to the newest count fast enough"
+        if transaction is None:
+            for x in range(0, 10):
+                if self.get_segment_count(dataset_id) == next_segment_count:
+                    return
+                log.debug("New segment count not yet committed, waiting 1s before retrying")
+                time.sleep(1)
+            assert False, "Server segment count did not update to the newest count fast enough"
 
     def get_message_ref(self, segment_id, message_id):
         """
