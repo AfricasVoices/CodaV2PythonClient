@@ -419,6 +419,16 @@ class CodaV2Client:
         log.debug(f"Wrote scheme: {scheme_id}")
 
     def set_segment_code_scheme(self, segment_id, code_scheme, transaction=None):
+        """
+        Sets a code scheme for a given segment.
+
+        :param segment_id: Id of the segment to set the code scheme for.
+        :type segment_id: str
+        :param code_scheme: Code scheme to be set.
+        :type code_scheme: core_data_modules.data_models.code_scheme.CodeScheme
+        :param transaction: Transaction to run this in or None.
+        :type transaction: google.cloud.firestore.Transaction | None
+        """
         scheme_id = code_scheme.scheme_id
         if transaction is None:
             # If no transaction was given, run all the updates in a new batched-write transaction and flag that
