@@ -114,6 +114,8 @@ class CodaV2Client:
 
         :param dataset_id: Id of a dataset
         :type dataset_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         :return: Number of segments for a given dataset
         :rtype: int
         """
@@ -139,6 +141,8 @@ class CodaV2Client:
 
         :param dataset_id: Id of the dataset to create segment for.
         :type dataset_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         """
         segment_count = self.get_segment_count(dataset_id, transaction=transaction)
         current_segment_id = self.id_for_segment(dataset_id, segment_count)
@@ -195,6 +199,8 @@ class CodaV2Client:
         :type segment_id: str
         :param message_id: Id of a message.
         :type message_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         :return: A message from a segment.
         :rtype: core_data_modules.data_models.message.Message | None
         """
@@ -219,6 +225,8 @@ class CodaV2Client:
                                     field and where the LastUpdated field is earlier than, or the same time as,
                                     last_updated_before. Defaults to None
         :type last_updated_before: datetime, optional
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         :return: Messages in this segment, filtered by 'LastUpdated' timestamp if requested.
         :rtype: list of core_data_modules.data_models.message.Message
         """
@@ -245,6 +253,8 @@ class CodaV2Client:
         :type dataset_id: str
         :param message_id: Id of a message.
         :type message_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         :return: A message from a dataset.
         :rtype: core_data_modules.data_models.message.Message | None
         """
@@ -346,6 +356,8 @@ class CodaV2Client:
 
         :param dataset_id: Id of a dataset.
         :type dataset_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         """
         segment_count = self.get_segment_count(dataset_id, transaction=transaction)
         if segment_count == 1:
@@ -377,6 +389,8 @@ class CodaV2Client:
 
         :param dataset_id: Id of a dataset.
         :type dataset_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         :return: Code schemes in this dataset
         :rtype: core_data_modules.data_models.code_scheme.CodeScheme
         """
@@ -450,6 +464,8 @@ class CodaV2Client:
 
         :param segment_id: Id of a segment.
         :type segment_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         :return: Messages metrics for a given segment
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
@@ -481,6 +497,8 @@ class CodaV2Client:
                          If specified, it computes progress metrics based on the provided messages
                          else it downloads messages from the requested segment. Defaults to None.
         :type messages: core_data_modules.data_models.message.Message | None
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         :return: Messages metrics.
         :rtype: core_data_modules.data_models.metrics.MessagesMetrics
         """
@@ -584,6 +602,8 @@ class CodaV2Client:
 
         :param dataset_id: Id of a dataset.
         :type dataset_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         """
         # Perform a consistency check on the other segments if they exist
         segment_count = self.get_segment_count(dataset_id)
@@ -602,6 +622,8 @@ class CodaV2Client:
 
         :param dataset_id: Id of a dataset.
         :type dataset_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         :return: list of user ids.
         :rtype: list
         """
