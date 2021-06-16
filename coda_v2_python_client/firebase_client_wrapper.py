@@ -632,10 +632,10 @@ class CodaV2Client:
     def get_next_available_sequence_number(self, dataset_id, transaction=None):
         """
         Gets the sequence number of message being added to the given dataset.
-        :param transaction: Transaction to run this get in.
-        :type transaction: google.cloud.firestore.Transaction
         :param dataset_id: Id of a dataset.
         :type dataset_id: str
+        :param transaction: Transaction to run this get in.
+        :type transaction: google.cloud.firestore.Transaction
         :return: sequence number.
         :rtype: int
         """
