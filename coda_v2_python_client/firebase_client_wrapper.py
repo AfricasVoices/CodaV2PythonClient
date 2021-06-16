@@ -419,6 +419,7 @@ class CodaV2Client:
         log.debug(f"Wrote scheme: {scheme_id}")
 
     def set_segment_code_scheme(self, segment_id, code_scheme, transaction=None):
+        scheme_id = code_scheme.scheme_id
         if transaction is None:
             # If no transaction was given, run all the updates in a new batched-write transaction and flag that
             # this transaction needs to be committed before returning from this function.
@@ -427,7 +428,7 @@ class CodaV2Client:
         else:
             commit_before_returning = False
 
-        transaction.set(self.get_segment_code_scheme_ref(segment_id, code_scheme.scheme_id), code_scheme.to_firebase_map())
+        transaction.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme.to_firebase_map())
 
         if commit_before_returning:
             transaction.commit()
