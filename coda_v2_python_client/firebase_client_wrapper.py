@@ -124,7 +124,7 @@ class CodaV2Client:
             return 1
         return segment_count_doc["segment_count"]
 
-    def set_segment_count(self, dataset_id, segment_count):
+    def set_segment_count(self, dataset_id, segment_count, transaction=None):
         """
         Sets number of segments for a given dataset.
 
@@ -153,19 +153,19 @@ class CodaV2Client:
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
         code_schemes = self.get_all_code_schemes(current_segment_id, transaction=transaction)
-        self.add_and_update_code_schemes(next_segment_id, code_schemes)
-
         users = self.get_user_ids(current_segment_id, transaction=transaction)
-        self.set_user_ids(next_segment_id, users)
 
-        self.set_segment_count(dataset_id, next_segment_count)
+        self.add_and_update_segment_code_schemes(next_segment_id, code_schemes, transaction=transaction)
+        self.set_segment_user_ids(next_segment_id, users, transaction=transaction)
+        self.set_segment_count(dataset_id, next_segment_count, transaction=transaction)
 
-        for x in range(0, 10):
-            if self.get_segment_count(dataset_id) == next_segment_count:
-                return
-            log.debug("New segment count not yet committed, waiting 1s before retrying")
-            time.sleep(1)
-        assert False, "Server segment count did not update to the newest count fast enough"
+        if transaction is None:
+            for x in range(0, 10):
+                if self.get_segment_count(dataset_id) == next_segment_count:
+                    return
+                log.debug("New segment count not yet committed, waiting 1s before retrying")
+                time.sleep(1)
+            assert False, "Server segment count did not update to the newest count fast enough"
 
     def get_message_ref(self, segment_id, message_id):
         """
@@ -189,7 +189,7 @@ class CodaV2Client:
         :return: A reference to collection `messages` in Firestore database
         :rtype: google.cloud.firestore_v1.collection.CollectionReference
         """
-        return self._client.document(f"datasets/{segment_id}/messages")
+        return self._client.collection(f"datasets/{segment_id}/messages")
 
     def get_segment_message(self, segment_id, message_id, transaction=None):
         """
@@ -230,7 +230,7 @@ class CodaV2Client:
         :return: Messages in this segment, filtered by 'LastUpdated' timestamp if requested.
         :rtype: list of core_data_modules.data_models.message.Message
         """
-        messages_ref = self.get_messages_ref(self, segment_id)
+        messages_ref = self.get_messages_ref(segment_id)
         if last_updated_after is not None:
             messages_ref = messages_ref.where("LastUpdated", ">", last_updated_after)
         if last_updated_before is not None:
@@ -435,6 +435,33 @@ class CodaV2Client:
         batch.commit()
         log.debug(f"Wrote scheme: {scheme_id}")
 
+    def set_segment_code_scheme(self, segment_id, code_scheme, transaction=None):
+        """
+        Sets a code scheme for a given segment.
+
+        :param segment_id: Id of the segment to set the code scheme for.
+        :type segment_id: str
+        :param code_scheme: Code scheme to be set.
+        :type code_scheme: core_data_modules.data_models.code_scheme.CodeScheme
+        :param transaction: Transaction to run this in or None.
+        :type transaction: google.cloud.firestore.Transaction | None
+        """
+        scheme_id = code_scheme.scheme_id
+        if transaction is None:
+            # If no transaction was given, run all the updates in a new batched-write transaction and flag that
+            # this transaction needs to be committed before returning from this function.
+            transaction = self._client.batch()
+            commit_before_returning = True
+        else:
+            commit_before_returning = False
+
+        transaction.set(self.get_segment_code_scheme_ref(segment_id, scheme_id), code_scheme.to_firebase_map())
+
+        if commit_before_returning:
+            transaction.commit()
+
+        log.debug(f"Wrote scheme: {scheme_id}")
+
     def add_and_update_code_schemes(self, dataset_id, code_schemes):
         """
         Adds or updates code schemes for a given dataset.
@@ -446,6 +473,20 @@ class CodaV2Client:
         """
         for code_scheme in code_schemes:
             self.set_code_scheme(dataset_id, code_scheme)
+
+    def add_and_update_segment_code_schemes(self, segment_id, code_schemes, transaction=None):
+        """
+        Adds or updates code schemes for a given segment.
+
+        :param segment_id: Id of the segment to add or update the code schemes for.
+        :type segment_id: str
+        :param code_schemes: Code schemes to be added or updated.
+        :type code_schemes: list of core_data_modules.data_models.code_scheme.CodeScheme
+        :param transaction: Transaction to run this in or None.
+        :type transaction: google.cloud.firestore.Transaction | None
+        """
+        for code_scheme in code_schemes:
+            self.set_segment_code_scheme(segment_id, code_scheme, transaction=transaction)
 
     def get_segment_messages_metrics_ref(self, segment_id):
         """
@@ -574,7 +615,7 @@ class CodaV2Client:
         """
         return self._client.document(f"datasets/{segment_id}")
 
-    def get_segment(self, segment_id):
+    def get_segment(self, segment_id, transaction=None):
         """
         Gets segment by id.
 
@@ -583,7 +624,7 @@ class CodaV2Client:
         :return: A snapshot of document data in a Firestore database.
         :rtype: google.cloud.firestore_v1.base_document.DocumentSnapshot
         """
-        return self.get_segment_ref(segment_id).get()
+        return self.get_segment_ref(segment_id).get(transaction=transaction)
 
     def get_segment_user_ids(self, segment_id):
         """
@@ -628,9 +669,7 @@ class CodaV2Client:
         :rtype: list
         """
         self.ensure_user_ids_consistent(dataset_id, transaction=transaction)
-
-        users = self.get_segment(dataset_id).get("users", transaction=transaction)
-        return users
+        return self.get_segment(dataset_id, transaction=transaction).get("users")
 
     def set_user_ids(self, dataset_id, user_ids):
         """
@@ -650,6 +689,33 @@ class CodaV2Client:
 
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
+
+    def set_segment_user_ids(self, segment_id, user_ids, transaction=None):
+        """
+        Sets user ids for the given segment.
+
+        :param segment_id: Id of a segment to set user ids into.
+        :type segment_id: str
+        :param user_ids: list of user ids.
+        :type user_ids: list
+        :param transaction: Transaction to run this update in or None.
+                            If None, adds the updates to a transaction that will then be explicitly committed.
+        :type transaction: google.cloud.firestore.Transaction | None
+        """
+        if transaction is None:
+            # If no transaction was given, run all the updates in a new batched-write transaction and flag that
+            # this transaction needs to be committed before returning from this function.
+            transaction = self._client.batch()
+            commit_before_returning = True
+        else:
+            commit_before_returning = False
+
+        transaction.set(self.get_segment_ref(segment_id), {"users": user_ids})
+
+        if commit_before_returning:
+            transaction.commit()
+
+        log.debug(f"Wrote {len(user_ids)} users to dataset {segment_id}")
 
     def get_next_available_sequence_number(self, dataset_id, transaction=None):
         """
