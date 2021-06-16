@@ -153,7 +153,7 @@ class CodaV2Client:
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
         code_schemes = self.get_all_code_schemes(current_segment_id, transaction=transaction)
-        users = self.get_user_ids(current_segment_id, transaction=transaction)
+        users = self.get_dataset_user_ids(current_segment_id, transaction=transaction)
 
         self.add_and_update_segment_code_schemes(next_segment_id, code_schemes, transaction=transaction)
         self.set_segment_user_ids(next_segment_id, users, transaction=transaction)
@@ -245,7 +245,7 @@ class CodaV2Client:
 
         return [Message.from_firebase_map(message) for message in messages]
 
-    def get_message(self, dataset_id, message_id, transaction=None):
+    def get_dataset_message(self, dataset_id, message_id, transaction=None):
         """
         Gets a message from a dataset by id. If the message is not found, returns None.
 
@@ -268,7 +268,7 @@ class CodaV2Client:
 
         return None
 
-    def get_messages(self, dataset_id, last_updated_after=None):
+    def get_dataset_messages(self, dataset_id, last_updated_after=None):
         """
         Downloads messages from the requested dataset, optionally filtering by when the messages were last updated.
 
@@ -414,7 +414,7 @@ class CodaV2Client:
         """
         return self._client.document(f"datasets/{segment_id}/code_schemes/{scheme_id}")
 
-    def set_code_scheme(self, dataset_id, code_scheme):
+    def set_dataset_code_scheme(self, dataset_id, code_scheme):
         """
         Sets a code scheme for a given dataset.
 
@@ -462,7 +462,7 @@ class CodaV2Client:
 
         log.debug(f"Wrote scheme: {scheme_id}")
 
-    def add_and_update_code_schemes(self, dataset_id, code_schemes):
+    def add_and_update_dataset_code_schemes(self, dataset_id, code_schemes):
         """
         Adds or updates code schemes for a given dataset.
 
@@ -472,7 +472,7 @@ class CodaV2Client:
         :type code_schemes: list of core_data_modules.data_models.code_scheme.CodeScheme
         """
         for code_scheme in code_schemes:
-            self.set_code_scheme(dataset_id, code_scheme)
+            self.set_dataset_code_scheme(dataset_id, code_scheme)
 
     def add_and_update_segment_code_schemes(self, segment_id, code_schemes, transaction=None):
         """
@@ -591,7 +591,7 @@ class CodaV2Client:
 
         return MessagesMetrics(len(messages), messages_with_labels, wrong_scheme_messages, not_coded_messages)
 
-    def compute_and_update_messages_metrics(self, dataset_id):
+    def compute_and_update_dataset_messages_metrics(self, dataset_id):
         """
         Computes messages metrics of the given dataset.
 
@@ -657,7 +657,7 @@ class CodaV2Client:
             assert set(self.get_segment_user_ids(segment_id)) == set(first_segment_users), \
                 f"Segment {segment_id} has different users to the first segment {dataset_id}"
 
-    def get_user_ids(self, dataset_id, transaction=None):
+    def get_dataset_user_ids(self, dataset_id, transaction=None):
         """
         Gets user ids for the given dataset.
 
@@ -671,7 +671,7 @@ class CodaV2Client:
         self.ensure_user_ids_consistent(dataset_id, transaction=transaction)
         return self.get_segment(dataset_id, transaction=transaction).get("users")
 
-    def set_user_ids(self, dataset_id, user_ids):
+    def set_dataset_user_ids(self, dataset_id, user_ids):
         """
         Sets user ids for the given dataset.
 
@@ -759,7 +759,7 @@ class CodaV2Client:
         :param max_segment_size: the maximum size for a segment, defaults to 2500
         :type max_segment_size: int, optional
         """
-        message_exists = self.get_message(dataset_id, message.message_id) is not None
+        message_exists = self.get_dataset_message(dataset_id, message.message_id) is not None
         assert not message_exists, f"message with id {message.message_id} already exists."
 
         latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
