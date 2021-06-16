@@ -418,6 +418,22 @@ class CodaV2Client:
         batch.commit()
         log.debug(f"Wrote scheme: {scheme_id}")
 
+    def set_segment_code_scheme(self, segment_id, code_scheme, transaction=None):
+        if transaction is None:
+            # If no transaction was given, run all the updates in a new batched-write transaction and flag that
+            # this transaction needs to be committed before returning from this function.
+            transaction = self._client.batch()
+            commit_before_returning = True
+        else:
+            commit_before_returning = False
+
+        transaction.set(self.get_segment_code_scheme_ref(segment_id, code_scheme.scheme_id), code_scheme.to_firebase_map())
+
+        if commit_before_returning:
+            transaction.commit()
+
+        log.debug(f"Wrote scheme: {scheme_id}")
+
     def add_and_update_code_schemes(self, dataset_id, code_schemes):
         """
         Adds or updates code schemes for a given dataset.
