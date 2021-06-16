@@ -115,7 +115,7 @@ class CodaV2Client:
         :param dataset_id: Id of a dataset
         :type dataset_id: str
         :param transaction: Transaction to run this get in.
-        :type transaction: google.cloud.firestore.Transaction
+        :type transaction: google.cloud.firestore.Transaction | None
         :return: Number of segments for a given dataset
         :rtype: int
         """
