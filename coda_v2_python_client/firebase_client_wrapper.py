@@ -219,7 +219,7 @@ class CodaV2Client:
         :return: Messages in this segment, filtered by 'LastUpdated' timestamp if requested.
         :rtype: list of core_data_modules.data_models.message.Message
         """
-        messages_ref = self.get_messages_ref(self, segment_id)
+        messages_ref = self.get_messages_ref(segment_id)
         if last_updated_after is not None:
             messages_ref = messages_ref.where("LastUpdated", ">", last_updated_after)
         if last_updated_before is not None:
