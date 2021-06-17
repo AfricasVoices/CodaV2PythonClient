@@ -772,7 +772,7 @@ class CodaV2Client:
             message = message.copy()
             message.last_updated = firestore.firestore.SERVER_TIMESTAMP
             message.sequence_number = self.get_next_available_sequence_number(dataset_id, transaction=transaction)
-            new_message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message], transaction=transaction)  # nopep8
+            message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message], transaction=transaction)  # nopep8
 
             latest_segment_id = self.id_for_segment(dataset_id, segment_count)
             segment_messages_metrics = self.get_segment_messages_metrics(latest_segment_id, transaction=transaction)
@@ -791,7 +791,7 @@ class CodaV2Client:
 
             updated_messages_metrics = dict()
             for attr, value in segment_messages_metrics.to_firebase_map().items():
-                updated_messages_metrics[attr] = value + getattr(new_message_metrics, attr)
+                updated_messages_metrics[attr] = value + getattr(message_metrics, attr)
 
             segment_messages_metrics_ref = self.get_segment_messages_metrics_ref(latest_segment_id)
             transaction.set(segment_messages_metrics_ref, updated_messages_metrics)
