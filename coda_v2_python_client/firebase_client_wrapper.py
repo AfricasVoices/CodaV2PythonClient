@@ -761,7 +761,7 @@ class CodaV2Client:
         """
         @firestore.transactional
         def add_in_transaction(transaction, message=message):
-            message_id = message.message_id + "999"
+            message_id = message.message_id
             message_exists = self.get_dataset_message(dataset_id, message_id, transaction=transaction) is not None
             assert not message_exists, f"message with id {message_id} already exists."
 
