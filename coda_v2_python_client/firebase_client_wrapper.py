@@ -773,8 +773,7 @@ class CodaV2Client:
             message.last_updated = firestore.firestore.SERVER_TIMESTAMP
             message.sequence_number = self.get_next_available_sequence_number(dataset_id, transaction=transaction)
             message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message], transaction=transaction)  # nopep8
-
-            latest_segment_id = self.id_for_segment(dataset_id, segment_count)
+            
             segment_messages_metrics = self.get_segment_messages_metrics(latest_segment_id, transaction=transaction)
             if segment_messages_metrics is None:
                 segment_messages_metrics = self.compute_segment_messages_metrics(
