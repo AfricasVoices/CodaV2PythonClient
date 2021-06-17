@@ -759,32 +759,41 @@ class CodaV2Client:
         :param max_segment_size: the maximum size for a segment, defaults to 2500
         :type max_segment_size: int, optional
         """
-        message_exists = self.get_dataset_message(dataset_id, message.message_id) is not None
-        assert not message_exists, f"message with id {message.message_id} already exists."
+        @firestore.transactional
+        def add_in_transaction(transaction, message=message):
+            message_id = message.message_id + "999"
+            message_exists = self.get_dataset_message(dataset_id, message_id, transaction=transaction) is not None
+            assert not message_exists, f"message with id {message_id} already exists."
 
-        latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
-
-        segment_messages_metrics = self.get_segment_messages_metrics(latest_segment_id)
-        if segment_messages_metrics is None:
-            segment_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id)
-
-        latest_segment_size = segment_messages_metrics.messages_count
-        if latest_segment_size >= max_segment_size:
-            self.create_next_segment(dataset_id)
             latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
-            segment_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id)
 
-        batch = self._client.batch()
+            message = message.copy()
+            message.last_updated = firestore.firestore.SERVER_TIMESTAMP
+            message.sequence_number = self.get_next_available_sequence_number(dataset_id, transaction=transaction)
+            new_message_metrics = self.compute_segment_messages_metrics(
+                latest_segment_id, [message], transaction=transaction)
 
-        message = message.copy()
-        message.last_updated = firestore.firestore.SERVER_TIMESTAMP
+            segment_count = self.get_segment_count(dataset_id, transaction=transaction)
+            latest_segment_id = self.id_for_segment(dataset_id, segment_count)
+            segment_messages_metrics = self.get_segment_messages_metrics(latest_segment_id, transaction=transaction)
+            if segment_messages_metrics is None:
+                segment_messages_metrics = self.compute_segment_messages_metrics(
+                    latest_segment_id, transaction=transaction)
 
-        batch.set(message_ref, message.to_firebase_map())
+            latest_segment_size = segment_messages_metrics.messages_count
+            if latest_segment_size >= max_segment_size:
+                self.create_next_segment(dataset_id, transaction=transaction)
+                latest_segment_id = self.id_for_segment(dataset_id, segment_count + 1)
+                segment_messages_metrics = MessagesMetrics(0, 0, 0, 0)
 
-        added_message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message])
-        updated_messages_metrics = dict()
-        for attr, value in segment_messages_metrics.to_firebase_map().items():
-            updated_messages_metrics[attr] = value + getattr(added_message_metrics, attr)
-        batch.set(self.get_segment_messages_metrics_ref(latest_segment_id), updated_messages_metrics)
+            message_ref = self.get_message_ref(latest_segment_id, message_id)
+            transaction.set(message_ref, message.to_firebase_map())
 
-        batch.commit()
+            updated_messages_metrics = dict()
+            for attr, value in segment_messages_metrics.to_firebase_map().items():
+                updated_messages_metrics[attr] = value + getattr(new_message_metrics, attr)
+
+            segment_messages_metrics_ref = self.get_segment_messages_metrics_ref(latest_segment_id)
+            transaction.set(segment_messages_metrics_ref, updated_messages_metrics)
+
+        add_in_transaction(self.transaction())
