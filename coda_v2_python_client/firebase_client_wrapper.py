@@ -780,11 +780,12 @@ class CodaV2Client:
 
             latest_segment_size = segment_messages_metrics.messages_count
             if latest_segment_size >= max_segment_size:
-                self.create_next_segment(dataset_id, transaction=transaction)
+                self.create_next_segment(dataset_id, transaction=transaction) # Any read operation after this will raise ReadAfterWriteError
                 latest_segment_id = self.id_for_segment(dataset_id, segment_count + 1)
                 segment_messages_metrics = MessagesMetrics(0, 0, 0, 0)
 
             message_ref = self.get_message_ref(latest_segment_id, message_id)
+            # Set message
             transaction.set(message_ref, message.to_firebase_map())
 
             updated_messages_metrics = dict()
@@ -792,6 +793,7 @@ class CodaV2Client:
                 updated_messages_metrics[attr] = value + getattr(message_metrics, attr)
 
             segment_messages_metrics_ref = self.get_segment_messages_metrics_ref(latest_segment_id)
+            # Set messages metrics
             transaction.set(segment_messages_metrics_ref, updated_messages_metrics)
 
         add_in_transaction(self.transaction())
