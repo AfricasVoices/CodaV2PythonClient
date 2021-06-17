@@ -765,14 +765,14 @@ class CodaV2Client:
             message_exists = self.get_dataset_message(dataset_id, message_id, transaction=transaction) is not None
             assert not message_exists, f"message with id {message_id} already exists."
 
-            latest_segment_id = self.id_for_segment(dataset_id, self.get_segment_count(dataset_id))
+            segment_count = self.get_segment_count(dataset_id, transaction=transaction)
+            latest_segment_id = self.id_for_segment(dataset_id, segment_count)
 
             message = message.copy()
             message.last_updated = firestore.firestore.SERVER_TIMESTAMP
             message.sequence_number = self.get_next_available_sequence_number(dataset_id, transaction=transaction)
             new_message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message], transaction=transaction)  # nopep8
 
-            segment_count = self.get_segment_count(dataset_id, transaction=transaction)
             latest_segment_id = self.id_for_segment(dataset_id, segment_count)
             segment_messages_metrics = self.get_segment_messages_metrics(latest_segment_id, transaction=transaction)
             if segment_messages_metrics is None:
