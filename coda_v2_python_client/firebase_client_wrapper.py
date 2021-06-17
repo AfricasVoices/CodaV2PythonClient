@@ -756,7 +756,7 @@ class CodaV2Client:
         :type dataset_id: str
         :param message: The message to be added.
         :type message: core_data_modules.data_models.message.Message
-        :param max_segment_size: the maximum size for a segment, defaults to 2500
+        :param max_segment_size: The maximum size for a segment, defaults to 2500
         :type max_segment_size: int, optional
         """
         @firestore.transactional
