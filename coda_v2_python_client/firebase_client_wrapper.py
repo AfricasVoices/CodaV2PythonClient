@@ -762,7 +762,7 @@ class CodaV2Client:
         message = message.copy()
 
         @firestore.transactional
-        def add_in_transaction(transaction, message=message):
+        def add_in_transaction(transaction):
             message_id = message.message_id
 
             message_exists = self.get_dataset_message(dataset_id, message_id, transaction=transaction) is not None
