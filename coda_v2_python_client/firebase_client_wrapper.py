@@ -784,7 +784,8 @@ class CodaV2Client:
 
             latest_segment_size = segment_messages_metrics.messages_count
             if latest_segment_size >= max_segment_size:
-                self.create_next_segment(dataset_id, transaction=transaction) # Any read operation after this will raise ReadAfterWriteError
+                # Any read operation after this will raise ReadAfterWriteError
+                self.create_next_segment(dataset_id, transaction=transaction)
                 latest_segment_id = self.id_for_segment(dataset_id, segment_count + 1)
                 segment_messages_metrics = MessagesMetrics(0, 0, 0, 0)
 
