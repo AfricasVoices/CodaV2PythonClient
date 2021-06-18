@@ -759,6 +759,8 @@ class CodaV2Client:
         :param max_segment_size: The maximum size for a segment, defaults to 2500
         :type max_segment_size: int, optional
         """
+        message = message.copy()
+
         @firestore.transactional
         def add_in_transaction(transaction, message=message):
             message_id = message.message_id
