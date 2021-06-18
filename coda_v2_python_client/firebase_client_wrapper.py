@@ -766,6 +766,8 @@ class CodaV2Client:
             message_exists = self.get_dataset_message(dataset_id, message_id, transaction=transaction) is not None
             assert not message_exists, f"message with id {message_id} already exists."
 
+            log.debug(f"Adding message with id {message_id} to Coda dataset {dataset_id}")
+
             segment_count = self.get_segment_count(dataset_id, transaction=transaction)
             latest_segment_id = self.id_for_segment(dataset_id, segment_count)
 
