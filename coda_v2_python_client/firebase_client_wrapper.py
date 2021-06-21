@@ -8,12 +8,12 @@ from core_data_modules.data_models import Message
 from core_data_modules.data_models import CodeScheme
 from core_data_modules.data_models import MessagesMetrics
 
-MAX_SEGMENT_SIZE = 2500
-
 log = Logger(__name__)
 
 
 class CodaV2Client:
+    MAX_SEGMENT_SIZE = 2500
+
     def __init__(self, client):
         """
         Inits Coda V2 client
@@ -748,7 +748,7 @@ class CodaV2Client:
 
         return highest_seq_no + 1
 
-    def add_message_to_dataset(self, dataset_id, message, max_segment_size=MAX_SEGMENT_SIZE):
+    def add_message_to_dataset(self, dataset_id, message):
         """
         Adds message to a given dataset.
 
@@ -756,8 +756,6 @@ class CodaV2Client:
         :type dataset_id: str
         :param message: The message to be added.
         :type message: core_data_modules.data_models.message.Message
-        :param max_segment_size: The maximum size for a segment, defaults to 2500
-        :type max_segment_size: int, optional
         """
         message = message.copy()
 
@@ -772,7 +770,7 @@ class CodaV2Client:
 
             segment_count = self.get_segment_count(dataset_id, transaction=transaction)
             latest_segment_id = self.id_for_segment(dataset_id, segment_count)
-            
+
             message.last_updated = firestore.firestore.SERVER_TIMESTAMP
             message.sequence_number = self.get_next_available_sequence_number(dataset_id, transaction=transaction)
             message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message], transaction=transaction)  # nopep8
@@ -782,7 +780,7 @@ class CodaV2Client:
                 segment_messages_metrics = self.compute_segment_messages_metrics(latest_segment_id, transaction=transaction)  # nopep8
 
             latest_segment_size = segment_messages_metrics.messages_count
-            if latest_segment_size >= max_segment_size:
+            if latest_segment_size >= self.MAX_SEGMENT_SIZE:
                 # Any read operation after this will raise ReadAfterWriteError
                 self.create_next_segment(dataset_id, transaction=transaction)
                 latest_segment_id = self.id_for_segment(dataset_id, segment_count + 1)
