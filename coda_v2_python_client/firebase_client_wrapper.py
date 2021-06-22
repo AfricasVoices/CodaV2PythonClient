@@ -47,6 +47,12 @@ class CodaV2Client:
         return cls(firestore.client(app))
 
     def transaction(self):
+        """
+        Gets one of the helpers for applying Google Cloud Firestore changes in a transaction
+
+        :return: One of the helpers for applying Google Cloud Firestore changes in a transaction
+        :rtype: google.cloud.firestore.Transaction
+        """
         return self._client.transaction()
 
     def get_dataset_ids(self):
