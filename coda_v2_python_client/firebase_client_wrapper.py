@@ -176,7 +176,7 @@ class CodaV2Client:
         :param message_id: Id of a message
         :type message_id: str
         :return: A reference to a document in a Firestore database
-        :rtype: google.cloud.firestore_v1.document.DocumentReference
+        :rtype: google.cloud.firestore.DocumentReference
         """
         return self._client.document(f"datasets/{segment_id}/messages/{message_id}")
 
@@ -187,7 +187,7 @@ class CodaV2Client:
         :param segment_id: Id of a segment
         :type segment_id: str
         :return: A reference to collection `messages` in Firestore database
-        :rtype: google.cloud.firestore_v1.collection.CollectionReference
+        :rtype: google.cloud.firestore.CollectionReference
         """
         return self._client.collection(f"datasets/{segment_id}/messages")
 
@@ -346,7 +346,7 @@ class CodaV2Client:
         :param segment_id: Id of a segment.
         :type segment_id: str
         :return: A reference to collection `code_schemes` in Firestore database
-        :rtype: google.cloud.firestore_v1.collection.CollectionReference
+        :rtype: google.cloud.firestore.CollectionReference
         """
         return self._client.collection(f"datasets/{segment_id}/code_schemes")
 
@@ -410,7 +410,7 @@ class CodaV2Client:
         :param scheme_id: Id of a code scheme to get the reference for.
         :type scheme_id: str
         :return: A reference to a document in a Firestore database.
-        :rtype: google.cloud.firestore_v1.document.DocumentReference
+        :rtype: google.cloud.firestore.DocumentReference
         """
         return self._client.document(f"datasets/{segment_id}/code_schemes/{scheme_id}")
 
@@ -495,7 +495,7 @@ class CodaV2Client:
         :param segment_id: Id of a segment.
         :type segment_id: str
         :return: A reference to messages metrics document in Firestore database
-        :rtype: google.cloud.firestore_v1.document.DocumentReference
+        :rtype: google.cloud.firestore.DocumentReference
         """
         return self._client.document(f"datasets/{segment_id}/metrics/messages")
 
@@ -611,7 +611,7 @@ class CodaV2Client:
         :param segment_id: Id of a segment.
         :type segment_id: str
         :return: A reference to a document in a Firestore database
-        :rtype: google.cloud.firestore_v1.document.DocumentReference
+        :rtype: google.cloud.firestore.DocumentReference
         """
         return self._client.document(f"datasets/{segment_id}")
 
@@ -622,7 +622,7 @@ class CodaV2Client:
         :param segment_id: Id of a segment.
         :type segment_id: str
         :return: A snapshot of document data in a Firestore database.
-        :rtype: google.cloud.firestore_v1.base_document.DocumentSnapshot
+        :rtype: google.cloud.firestore.DocumentSnapshot
         """
         return self.get_segment_ref(segment_id).get(transaction=transaction)
 
