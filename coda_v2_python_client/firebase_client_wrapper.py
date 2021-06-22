@@ -778,7 +778,7 @@ class CodaV2Client:
 
             segment_count = self.get_segment_count(dataset_id, transaction=transaction)
             latest_segment_id = self.id_for_segment(dataset_id, segment_count)
-            
+
             message.last_updated = firestore.firestore.SERVER_TIMESTAMP
             message.sequence_number = self.get_next_available_sequence_number(dataset_id, transaction=transaction)
             message_metrics = self.compute_segment_messages_metrics(latest_segment_id, [message], transaction=transaction)  # nopep8
