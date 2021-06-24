@@ -108,6 +108,17 @@ class CodaV2Client:
             segmented_dataset_ids.append(doc.id)
         return segmented_dataset_ids
 
+    def get_dataset_segment_count_ref(self, dataset_id):
+        """
+        Gets Firestore database reference to segment count document.
+
+        :param dataset_id: Id of a dataset
+        :type dataset_id: str
+        :return: A reference to a document in a Firestore database
+        :rtype: google.cloud.firestore.DocumentReference
+        """
+        return self._client.document(f"segment_counts/{dataset_id}")
+
     def get_segment_count(self, dataset_id, transaction=None):
         """
         Gets number of segments for a given dataset. If the dataset is not segmented, returns 1
@@ -119,7 +130,7 @@ class CodaV2Client:
         :return: Number of segments for a given dataset
         :rtype: int
         """
-        segment_count_doc = self._client.document(f"segment_counts/{dataset_id}").get(transaction=transaction).to_dict()
+        segment_count_doc = self.get_dataset_segment_count_ref(dataset_id).get(transaction=transaction).to_dict()
         if segment_count_doc is None:
             return 1
         return segment_count_doc["segment_count"]
@@ -133,7 +144,7 @@ class CodaV2Client:
         :param segment_count: Number of segment for a given dataset.
         :type segment_count: int
         """
-        self._client.document(f"segment_counts/{dataset_id}").set({"segment_count": segment_count})
+        self.get_dataset_segment_count_ref(dataset_id).set({"segment_count": segment_count})
 
     def create_next_segment(self, dataset_id, transaction=None):
         """
