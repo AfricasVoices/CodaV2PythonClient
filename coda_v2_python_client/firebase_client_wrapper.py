@@ -48,7 +48,7 @@ class CodaV2Client:
 
     def transaction(self):
         """
-        Returns a firestore function for perforimng a set of read and write operations on one or more documents.
+        Returns a firestore function for performing a set of read and write operations on one or more documents.
 
         :return: One of the helpers for applying Google Cloud Firestore changes in a transaction.
         :rtype: google.cloud.firestore.Transaction
