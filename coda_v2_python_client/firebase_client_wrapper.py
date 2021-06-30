@@ -298,7 +298,7 @@ class CodaV2Client:
                                    field and where the LastUpdated field is later than last_updated_after. Defaults to None.
         :type last_updated_after: datetime, optional
         :return: Messages in this dataset, filtered by 'LastUpdated' timestamp if requested.
-        :rtype: list of dict
+        :rtype: list of core_data_modules.data_models.message.Message
         """
         segment_count = self.get_segment_count(dataset_id)
         if segment_count == 1:
