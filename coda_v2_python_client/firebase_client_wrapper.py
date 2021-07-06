@@ -254,13 +254,7 @@ class CodaV2Client:
             messages_ref = messages_ref.where("LastUpdated", "<=", last_updated_before)
         raw_messages = [message.to_dict() for message in messages_ref.get(transaction=transaction)]
 
-        messages = []
-        for message in raw_messages:
-            if "LastUpdated" in message:
-                message["LastUpdated"] = message["LastUpdated"].isoformat(timespec="microseconds")
-            messages.append(message)
-
-        return [Message.from_firebase_map(message) for message in messages]
+        return [Message.from_firebase_map(message) for message in raw_messages]
 
     def get_dataset_message(self, dataset_id, message_id, transaction=None):
         """
