@@ -310,12 +310,11 @@ class CodaV2Client:
             dataset_last_updated = None
             for segment_messages in messages_by_segment.values():
                 for msg in segment_messages:
-                    msg = msg.to_dict()
-                    if "LastUpdated" in msg:
-                        if dataset_last_updated is None or msg["LastUpdated"] > dataset_last_updated:
-                            dataset_last_updated = msg["LastUpdated"]
-                        if dataset_first_updated is None or msg["LastUpdated"] < dataset_first_updated:
-                            dataset_first_updated = msg["LastUpdated"]
+                    if hasattr(msg, "last_updated"):
+                        if dataset_last_updated is None or msg.last_updated > dataset_last_updated:
+                            dataset_last_updated = msg.last_updated
+                        if dataset_first_updated is None or msg.last_updated < dataset_first_updated:
+                            dataset_first_updated = msg.last_updated
 
             # Check all the segments for any messages between the latest one we fetched above and the most recently updated
             # message seen in any segment. If we didn't fetch any new messages for a segment, use the oldest timestamp
@@ -325,10 +324,9 @@ class CodaV2Client:
             for segment_id, segment_messages in messages_by_segment.items():
                 segment_last_updated = None
                 for msg in segment_messages:
-                    msg = msg.to_dict()
-                    if "LastUpdated" in msg:
-                        if segment_last_updated is None or msg["LastUpdated"] > segment_last_updated:
-                            segment_last_updated = msg["LastUpdated"]
+                    if hasattr(msg, "last_updated"):
+                        if segment_last_updated is None or msg.last_updated > segment_last_updated:
+                            segment_last_updated = msg.last_updated
 
                 if segment_last_updated is None:
                     segment_last_updated = dataset_first_updated
