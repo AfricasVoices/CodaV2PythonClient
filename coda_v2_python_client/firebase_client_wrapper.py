@@ -310,7 +310,7 @@ class CodaV2Client:
             dataset_last_updated = None
             for segment_messages in messages_by_segment.values():
                 for msg in segment_messages:
-                    if hasattr(msg, "last_updated"):
+                    if msg.last_updated is not None:
                         if dataset_last_updated is None or msg.last_updated > dataset_last_updated:
                             dataset_last_updated = msg.last_updated
                         if dataset_first_updated is None or msg.last_updated < dataset_first_updated:
