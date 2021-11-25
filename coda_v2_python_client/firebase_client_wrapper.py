@@ -706,6 +706,25 @@ class CodaV2Client:
         batch.commit()
         log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
 
+    def update_dataset_user_ids(self, dataset_id, user_ids):
+        """
+        Updates user ids for the given dataset.
+
+        :param dataset_id: Id of a dataset.
+        :type dataset_id: str
+        :param user_ids: list of user ids.
+        :type user_ids: list
+        """
+        segment_count = self.get_segment_count(dataset_id)
+        batch = self._client.batch()
+
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            batch.update(self.get_segment_ref(segment_id), {"users": firestore.ArrayUnion(user_ids)})
+
+        batch.commit()
+        log.debug(f"Wrote {len(user_ids)} users to dataset {dataset_id}")
+
     def set_segment_user_ids(self, segment_id, user_ids, transaction=None):
         """
         Sets user ids for the given segment.
