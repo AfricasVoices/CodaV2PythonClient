@@ -150,7 +150,10 @@ class CodaV2Client:
         :param segment_count: Number of segment for a given dataset.
         :type segment_count: int
         """
-        self.get_dataset_segment_count_ref(dataset_id).set({"segment_count": segment_count})
+        if transaction is None:
+            self.get_dataset_segment_count_ref(dataset_id).set({"segment_count": segment_count})
+        else:
+            transaction.set(self.get_dataset_segment_count_ref(dataset_id), {"segment_count": segment_count})
 
     def create_next_segment(self, dataset_id, transaction=None):
         """
