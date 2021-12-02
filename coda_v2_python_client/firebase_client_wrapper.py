@@ -173,10 +173,11 @@ class CodaV2Client:
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
         code_schemes = self.get_all_code_schemes(current_segment_id, transaction=transaction)
-        users = self.get_dataset_user_ids(current_segment_id, transaction=transaction)
+        user_ids = self.get_dataset_user_ids(current_segment_id, transaction=transaction)
 
         self.add_and_update_segment_code_schemes(next_segment_id, code_schemes, transaction=transaction)
-        self.set_segment_user_ids(next_segment_id, users, transaction=transaction)
+        if user_ids is not None:
+            self.set_segment_user_ids(next_segment_id, users, transaction=transaction)
         self.set_segment_count(dataset_id, next_segment_count, transaction=transaction)
 
         if transaction is None:
@@ -678,10 +679,18 @@ class CodaV2Client:
         :param transaction: Transaction to run this get in.
         :type transaction: google.cloud.firestore.Transaction
         :return: list of user ids.
-        :rtype: list
+        :rtype: list | None
         """
         self.ensure_user_ids_consistent(dataset_id, transaction=transaction)
-        return self.get_segment(dataset_id, transaction=transaction).get("users")
+
+        segment_snapshot = self.get_segment(dataset_id, transaction=transaction)
+        if not segment_snapshot.exists:
+            return None
+
+        segment_doc = segment_snapshot.to_dict()
+        if "users" not in segment_doc:
+            return None
+        return segment_doc["users"]
 
     def set_dataset_user_ids(self, dataset_id, user_ids):
         """
