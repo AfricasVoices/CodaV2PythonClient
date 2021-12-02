@@ -170,10 +170,11 @@ class CodaV2Client:
         log.debug(f"Creating next dataset segment with id {next_segment_id}")
 
         code_schemes = self.get_all_code_schemes(current_segment_id, transaction=transaction)
-        users = self.get_dataset_user_ids(current_segment_id, transaction=transaction)
+        user_ids = self.get_dataset_user_ids(current_segment_id, transaction=transaction)
 
         self.add_and_update_segment_code_schemes(next_segment_id, code_schemes, transaction=transaction)
-        self.set_segment_user_ids(next_segment_id, users, transaction=transaction)
+        if user_ids is not None:
+            self.set_segment_user_ids(next_segment_id, users, transaction=transaction)
         self.set_segment_count(dataset_id, next_segment_count, transaction=transaction)
 
         if transaction is None:
