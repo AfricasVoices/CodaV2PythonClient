@@ -675,17 +675,18 @@ class CodaV2Client:
         :param transaction: Transaction to run this get in.
         :type transaction: google.cloud.firestore.Transaction
         :return: list of user ids.
-        :rtype: list
+        :rtype: list | None
         """
         self.ensure_user_ids_consistent(dataset_id, transaction=transaction)
 
         segment_snapshot = self.get_segment(dataset_id, transaction=transaction)
-        segment_doc = segment_snapshot.to_dict()
+        if not segment_snapshot.exists:
+            return None
 
-        user_ids = []
-        if segment_doc is not None and "users" in segment_doc:
-            user_ids = segment_snapshot.get("users")
-        return user_ids
+        segment_doc = segment_snapshot.to_dict()
+        if "users" not in segment_doc:
+            return None
+        return segment_doc["users"]
 
     def set_dataset_user_ids(self, dataset_id, user_ids):
         """
