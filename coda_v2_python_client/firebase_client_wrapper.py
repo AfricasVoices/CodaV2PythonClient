@@ -639,7 +639,7 @@ class CodaV2Client:
         """
         return self.get_segment_ref(segment_id).get(transaction=transaction)
 
-    def get_segment_user_ids(self, segment_id):
+    def get_segment_user_ids(self, segment_id, transaction=None):
         """
         Gets user id in the given segment.
 
@@ -648,7 +648,7 @@ class CodaV2Client:
         :return: list of user ids.
         :rtype: list
         """
-        return self.get_segment(segment_id).get("users")
+        return self.get_segment(segment_id, transaction=transaction).get("users")
 
     def ensure_user_ids_consistent(self, dataset_id, transaction=None):
         """
@@ -664,10 +664,10 @@ class CodaV2Client:
         if segment_count == 1:
             return
 
-        first_segment_users = self.get_segment(dataset_id).get("users", transaction=transaction)
+        first_segment_users = self.get_segment_user_ids(dataset_id, transaction=transaction)
         for segment_index in range(2, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
-            assert set(self.get_segment_user_ids(segment_id)) == set(first_segment_users), \
+            assert set(self.get_segment_user_ids(segment_id, transaction=transaction)) == set(first_segment_users), \
                 f"Segment {segment_id} has different users to the first segment {dataset_id}"
 
     def get_dataset_user_ids(self, dataset_id, transaction=None):
