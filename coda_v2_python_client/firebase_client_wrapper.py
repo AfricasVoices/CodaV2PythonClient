@@ -177,7 +177,7 @@ class CodaV2Client:
 
         self.add_and_update_segment_code_schemes(next_segment_id, code_schemes, transaction=transaction)
         if user_ids is not None:
-            self.set_segment_user_ids(next_segment_id, users, transaction=transaction)
+            self.set_segment_user_ids(next_segment_id, user_ids, transaction=transaction)
         self.set_segment_count(dataset_id, next_segment_count, transaction=transaction)
 
         if transaction is None:
