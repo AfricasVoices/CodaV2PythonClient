@@ -602,7 +602,7 @@ class CodaV2Client:
             if message_has_nc:
                 not_coded_messages += 1
 
-        return MessagesMetrics(len(messages), messages_with_labels, wrong_scheme_messages, not_coded_messages)
+        return MessagesMetrics(len(messages), messages_with_labels, not_coded_messages, wrong_scheme_messages)
 
     def compute_and_update_dataset_messages_metrics(self, dataset_id):
         """
