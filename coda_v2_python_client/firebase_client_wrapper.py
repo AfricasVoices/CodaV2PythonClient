@@ -405,7 +405,7 @@ class CodaV2Client:
         :param transaction: Transaction to run this get in.
         :type transaction: google.cloud.firestore.Transaction
         :return: Code schemes in this dataset
-        :rtype: core_data_modules.data_models.code_scheme.CodeScheme
+        :rtype: list of core_data_modules.data_models.code_scheme.CodeScheme
         """
         self.ensure_code_schemes_consistent(dataset_id, transaction=transaction)
 
