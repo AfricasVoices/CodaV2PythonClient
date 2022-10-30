@@ -606,7 +606,7 @@ class CodaV2Client:
 
     def compute_and_update_dataset_messages_metrics(self, dataset_id):
         """
-        Computes messages metrics of the given dataset.
+        Computes and updates messages metrics of the given dataset.
 
         :param dataset_id: Id of the dataset to compute coding progress.
         :type dataset_id: str
