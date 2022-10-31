@@ -820,3 +820,44 @@ class CodaV2Client:
             transaction.set(segment_messages_metrics_ref, updated_messages_metrics)
 
         add_in_transaction(self.transaction())
+
+    def _delete_doc(self, document_reference, transaction=None):
+        """
+        Deletes a document from the Firestore database.
+        
+        :param document_reference: A document location in a Firestore database
+        :type document_reference: google.cloud.firestore.DocumentReference
+        :param transaction: Transaction to run this update in or None.
+                            If None, writes immediately, otherwise adds the updates to a transaction that will need
+                            to be explicitly committed elsewhere.
+        :type transaction: google.cloud.firestore.Transaction | None
+        """
+        if transaction is None:
+            document_reference.delete()
+        else:
+            transaction.delete(document_reference)
+
+    def delete_dataset_message(dataset_id, message_id, transaction=None):
+        """
+        Deletes message in a given dataset.
+
+        :param dataset_id: Id of the dataset to delete the message from.
+        :type dataset_id: str
+        :param message_id: Id of a message
+        :type message_id: str
+        :param transaction: Transaction to run this in or None.
+        :type transaction: google.cloud.firestore.Transaction | None
+        """
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+
+            message_ref = self.get_message_ref(segment_id, message_id)
+            message_snapshot = message_ref.get(transaction=transaction)
+            if not message_snapshot.exists:
+                return
+
+            self._delete_doc(message_ref, transaction=transaction)
+
+            messages_metrics = self.compute_segment_messages_metrics(segment_id, transaction=transaction)
+            self.set_segment_messages_metrics(segment_id, messages_metrics)
