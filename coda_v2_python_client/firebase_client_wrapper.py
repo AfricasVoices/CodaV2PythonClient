@@ -839,7 +839,7 @@ class CodaV2Client:
 
     def delete_dataset_message(dataset_id, message_id, transaction=None):
         """
-        Deletes message in a given dataset.
+        Deletes message in the given dataset then computes and updates messages metrics of the given dataset.
 
         :param dataset_id: Id of the dataset to delete the message from.
         :type dataset_id: str
