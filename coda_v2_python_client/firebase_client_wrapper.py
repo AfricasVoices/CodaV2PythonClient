@@ -855,8 +855,9 @@ class CodaV2Client:
             message_ref = self.get_message_ref(segment_id, message_id)
             message_snapshot = message_ref.get(transaction=transaction)
             if not message_snapshot.exists:
-                return
+                continue
 
+            log.warning(f"Deleting message with id {message_id} in segment {segment_id}")
             self._delete_doc(message_ref, transaction=transaction)
 
             messages_metrics = self.compute_segment_messages_metrics(segment_id, transaction=transaction)
