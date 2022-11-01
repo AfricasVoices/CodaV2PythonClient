@@ -1,12 +1,9 @@
 import json
 
 import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
+from core_data_modules.data_models import CodeScheme, Message, MessagesMetrics
 from core_data_modules.logging import Logger
-from core_data_modules.data_models import Message
-from core_data_modules.data_models import CodeScheme
-from core_data_modules.data_models import MessagesMetrics
+from firebase_admin import credentials, firestore
 
 log = Logger(__name__)
 
