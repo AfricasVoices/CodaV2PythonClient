@@ -834,7 +834,7 @@ class CodaV2Client:
         else:
             transaction.delete(document_reference)
 
-    def delete_dataset_message(dataset_id, message_id, transaction=None):
+    def delete_dataset_message(self, dataset_id, message_id, transaction=None):
         """
         Deletes a message in the given dataset then computes and updates messages metrics of the given dataset.
 
