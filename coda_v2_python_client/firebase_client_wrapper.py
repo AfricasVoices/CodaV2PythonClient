@@ -854,8 +854,8 @@ class CodaV2Client:
             if not message_snapshot.exists:
                 continue
 
-            messages_metrics = self.get_segment_messages_metrics(segment_id, transaction=transaction)
             msg_to_delete = Message.from_firebase_map(message_snapshot.to_dict())
+            messages_metrics = self.get_segment_messages_metrics(segment_id, transaction=transaction)
             msg_to_delete_metrics = self.compute_segment_messages_metrics(segment_id, [msg_to_delete], transaction=transaction)
 
             updated_messages_metrics = dict()
