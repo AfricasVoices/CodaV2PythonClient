@@ -843,7 +843,7 @@ class CodaV2Client:
 
         :param dataset_id: Id of the dataset to delete the message from.
         :type dataset_id: str
-        :param message_id: Id of a message
+        :param message_id: Id of the message to delete
         :type message_id: str
         :param transaction: Transaction to run this in or None.
         :type transaction: google.cloud.firestore.Transaction | None
