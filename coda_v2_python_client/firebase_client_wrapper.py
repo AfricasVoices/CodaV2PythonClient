@@ -858,8 +858,8 @@ class CodaV2Client:
             msg_to_delete = Message.from_firebase_map(message_snapshot.to_dict())
             msg_to_delete_metrics = self.compute_segment_messages_metrics(segment_id, [msg_to_delete], transaction=transaction)
 
-            messages_metrics, msg_to_delete_metrics = messages_metrics.to_firebase_map(), message_snapshot.to_dict()
             updated_messages_metrics = dict()
+            messages_metrics, msg_to_delete_metrics = messages_metrics.to_firebase_map(), message_snapshot.to_dict()
             for key in messages_metrics.keys():
                 updated_messages_metrics[key] = messages_metrics[key] - msg_to_delete_metrics[key]
             
