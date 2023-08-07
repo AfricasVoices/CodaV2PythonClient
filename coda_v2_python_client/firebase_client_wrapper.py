@@ -259,7 +259,7 @@ class CodaV2Client:
         self.set_segment_messages_metrics(segment_id, segment_metrics, transaction=transaction)
 
     def update_dataset_message(self, dataset_id, message, transaction):
-        segment_id = self.get_segment_id_for_message_id(dataset_id, message, transaction)
+        segment_id = self.get_segment_id_for_message_id(dataset_id, message.message_id, transaction)
         if segment_id is None:
             self.add_message_to_dataset(dataset_id, message)
             return
