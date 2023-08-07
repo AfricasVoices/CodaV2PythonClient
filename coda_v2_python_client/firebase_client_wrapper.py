@@ -242,7 +242,7 @@ class CodaV2Client:
         :type transaction: google.cloud.firestore.Transaction
         """
         # Check the message already exists in this segment.
-        old_message = self.get_segment_message(segment_id, message, transaction)
+        old_message = self.get_segment_message(segment_id, message.message_id, transaction)
         if old_message is None:
             raise ValueError(f"Message {message.message_id} not found in segment {segment_id}")
 
