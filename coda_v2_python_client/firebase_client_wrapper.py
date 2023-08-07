@@ -539,11 +539,55 @@ class CodaV2Client:
         """
         self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
 
+    @staticmethod
+    def compute_message_metrics(message, code_schemes):
+        """
+        Computes the MessageMetrics for a single message.
+
+        :param message: Message to compute the metrics for.
+        :type message: core_data_modules.data_models.message.Message
+        :param code_schemes: Code schemes that this message may have been labelled under.
+        :type code_schemes: list of core_data_modules.data_models.code_scheme.CodeScheme
+        :return: Message metrics for a single message.
+        :rtype: core_data_modules.data_models.metrics.MessageMetrics
+        """
+        message_has_label = False
+        message_has_ws = False
+        message_has_nc = False
+
+        code_schemes_lut = {code_scheme.scheme_id: code_scheme for code_scheme in code_schemes}
+
+        for label in message.get_latest_labels():
+            if not label.checked:
+                continue
+
+            message_has_label = True
+            code_scheme_for_label = code_schemes_lut[label.scheme_id]
+            code_for_label = None
+
+            for code in code_scheme_for_label.codes:
+                if label.code_id == code.code_id:
+                    code_for_label = code
+
+            assert code_for_label is not None
+            if code_for_label.code_type == "Control":
+                if code_for_label.control_code == "WS":
+                    message_has_ws = True
+                if code_for_label.control_code == "NC":
+                    message_has_nc = True
+
+        return MessagesMetrics(
+            messages_count=1,
+            messages_with_label=1 if message_has_label else 0,
+            not_coded_messages=1 if message_has_nc else 0,
+            wrong_scheme_messages=1 if message_has_ws else 0
+        )
+
     def compute_segment_messages_metrics(self, segment_id, messages=None, transaction=None):
         """
         Compute and return the messages metrics for a given dataset.
 
-        This method will initialise the counts in Firestore if they do not already exist.
+        This method does not update Firestore.
 
         :param segment_id: Id of a segment.
         :type segment_id: str
@@ -562,47 +606,13 @@ class CodaV2Client:
         if len(messages) == 0:
             return MessagesMetrics(0, 0, 0, 0)
 
-        messages_with_labels = 0
-        wrong_scheme_messages = 0
-        not_coded_messages = 0
+        code_schemes = self.get_all_code_schemes(segment_id, transaction=transaction)
 
-        code_schemes = {code_scheme.scheme_id: code_scheme for code_scheme in self.get_all_code_schemes(
-            segment_id, transaction=transaction)}
-
+        segment_metrics = MessagesMetrics(0, 0, 0, 0)
         for message in messages:
-            # Test if the message has a label and if any of the latest labels are either WS or NC
-            message_has_label = False
-            message_has_ws = False
-            message_has_nc = False
+            segment_metrics += CodaV2Client.compute_message_metrics(message, code_schemes)
 
-            for label in message.get_latest_labels():
-                if not label.checked:
-                    continue
-
-                message_has_label = True
-                code_scheme_for_label = code_schemes[label.scheme_id]
-                code_for_label = None
-
-                for code in code_scheme_for_label.codes:
-                    if label.code_id == code.code_id:
-                        code_for_label = code
-
-                assert code_for_label is not None
-                if code_for_label.code_type == "Control":
-                    if code_for_label.control_code == "WS":
-                        message_has_ws = True
-                    if code_for_label.control_code == "NC":
-                        message_has_nc = True
-
-            # Update counts appropriately
-            if message_has_label:
-                messages_with_labels += 1
-            if message_has_ws:
-                wrong_scheme_messages += 1
-            if message_has_nc:
-                not_coded_messages += 1
-
-        return MessagesMetrics(len(messages), messages_with_labels, not_coded_messages, wrong_scheme_messages)
+        return segment_metrics
 
     def compute_and_update_dataset_messages_metrics(self, dataset_id):
         """
