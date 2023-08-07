@@ -817,16 +817,13 @@ class CodaV2Client:
                 latest_segment_id = self.id_for_segment(dataset_id, segment_count + 1)
                 segment_messages_metrics = MessagesMetrics(0, 0, 0, 0)
 
-            message_ref = self.get_message_ref(latest_segment_id, message_id)
             # Set message
+            message_ref = self.get_message_ref(latest_segment_id, message_id)
             transaction.set(message_ref, message.to_firebase_map())
 
-            updated_messages_metrics = dict()
-            for attr, value in segment_messages_metrics.to_firebase_map().items():
-                updated_messages_metrics[attr] = value + getattr(message_metrics, attr)
-
-            segment_messages_metrics_ref = self.get_segment_messages_metrics_ref(latest_segment_id)
             # Set messages metrics
-            transaction.set(segment_messages_metrics_ref, updated_messages_metrics)
+            updated_messages_metrics = segment_messages_metrics + message_metrics
+            segment_messages_metrics_ref = self.get_segment_messages_metrics_ref(latest_segment_id)
+            transaction.set(segment_messages_metrics_ref, updated_messages_metrics.to_firebase_map())
 
         add_in_transaction(self.transaction())
