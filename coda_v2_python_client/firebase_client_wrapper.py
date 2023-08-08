@@ -242,7 +242,7 @@ class CodaV2Client:
         :type transaction: google.cloud.firestore.Transaction
         """
         # Check the message already exists in this segment.
-        old_message = self.get_segment_message(segment_id, message.message_id, transaction)
+        old_message = self.get_segment_message(segment_id, message.message_id, transaction=transaction)
         if old_message is None:
             raise ValueError(f"Message {message.message_id} not found in segment {segment_id}")
 
@@ -259,15 +259,15 @@ class CodaV2Client:
         self.set_segment_messages_metrics(segment_id, segment_metrics, transaction=transaction)
 
     def update_dataset_message(self, dataset_id, message, transaction):
-        segment_id = self.get_segment_id_for_message_id(dataset_id, message.message_id, transaction)
+        segment_id = self.get_segment_id_for_message_id(dataset_id, message.message_id, transaction=transaction)
         if segment_id is None:
             self.add_message_to_dataset(dataset_id, message)
             return
 
-        self.update_segment_message(segment_id, message, transaction)
+        self.update_segment_message(segment_id, message, transaction=transaction)
 
     def get_segment_id_for_message_id(self, dataset_id, message_id, transaction):
-        segment_count = self.get_segment_count(dataset_id, transaction)
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
         for segment_index in range(1, segment_count + 1):
             segment_id = self.id_for_segment(dataset_id, segment_index)
             message = self.get_segment_message(segment_id, message_id, transaction=transaction)
