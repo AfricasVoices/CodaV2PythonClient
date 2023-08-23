@@ -230,6 +230,52 @@ class CodaV2Client:
             return Message.from_firebase_map(message_snapshot.to_dict())
         return None
 
+    def update_segment_message(self, segment_id, message, transaction):
+        """
+        Updates an existing message in a segment.
+
+        :param segment_id: Id of the segment that contains the message to update.
+        :type segment_id: str
+        :param message: Message to update.
+        :type message: core_data_modules.data_models.message.Message
+        :param transaction: Transaction to run this set in.
+        :type transaction: google.cloud.firestore.Transaction
+        """
+        # Check the message already exists in this segment.
+        old_message = self.get_segment_message(segment_id, message.message_id, transaction=transaction)
+        if old_message is None:
+            raise ValueError(f"Message {message.message_id} not found in segment {segment_id}")
+
+        # Get the segment's current metrics.
+        segment_metrics = self.get_segment_messages_metrics(segment_id, transaction=transaction)
+        segment_code_schemes = self.get_all_code_schemes(segment_id, transaction=transaction)
+
+        # Update the message.
+        transaction.set(self.get_message_ref(segment_id, message.message_id), message.to_firebase_map())
+
+        # Update the segment's metrics.
+        segment_metrics -= CodaV2Client.compute_message_metrics(old_message, segment_code_schemes)
+        segment_metrics += CodaV2Client.compute_message_metrics(message, segment_code_schemes)
+        self.set_segment_messages_metrics(segment_id, segment_metrics, transaction=transaction)
+
+    def update_dataset_message(self, dataset_id, message, transaction):
+        segment_id = self.get_segment_id_for_message_id(dataset_id, message.message_id, transaction=transaction)
+        if segment_id is None:
+            self.add_message_to_dataset(dataset_id, message)
+            return
+
+        self.update_segment_message(segment_id, message, transaction=transaction)
+
+    def get_segment_id_for_message_id(self, dataset_id, message_id, transaction):
+        segment_count = self.get_segment_count(dataset_id, transaction=transaction)
+        for segment_index in range(1, segment_count + 1):
+            segment_id = self.id_for_segment(dataset_id, segment_index)
+            message = self.get_segment_message(segment_id, message_id, transaction=transaction)
+            if message is not None:
+                return segment_id
+
+        return None
+
     def get_segment_messages(self, segment_id, last_updated_after=None, last_updated_before=None, transaction=None):
         """
         Downloads messages from the requested segment, optionally filtering by when the messages were last updated.
@@ -528,16 +574,21 @@ class CodaV2Client:
             return None
         return MessagesMetrics.from_firebase_map(messages_metrics)
 
-    def set_segment_messages_metrics(self, segment_id, messages_metrics):
+    def set_segment_messages_metrics(self, segment_id, messages_metrics, transaction=None):
         """
         Sets messages metrics for a given segment
 
         :param segment_id: Id of a segment.
         :type segment_id: str
-        :param metrics_map: Messages metrics.
-        :type metrics_map: core_data_modules.data_models.metrics.MessagesMetrics
+        :param messages_metrics: Messages metrics to set.
+        :type messages_metrics: core_data_modules.data_models.metrics.MessagesMetrics
+        :param transaction: Transaction to run this set in.
+        :type transaction: google.cloud.firestore.Transaction | None
         """
-        self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
+        if transaction is None:
+            self.get_segment_messages_metrics_ref(segment_id).set(messages_metrics.to_firebase_map())
+        else:
+            transaction.set(self.get_segment_messages_metrics_ref(segment_id), messages_metrics.to_firebase_map())
 
     @staticmethod
     def compute_message_metrics(message, code_schemes):
